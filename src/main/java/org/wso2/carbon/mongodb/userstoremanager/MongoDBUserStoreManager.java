@@ -1,6 +1,5 @@
 package org.wso2.carbon.mongodb.userstoremanager;
 
-import java.io.UnsupportedEncodingException;
 import java.security.SecureRandom;
 import java.security.NoSuchAlgorithmException;
 import java.security.MessageDigest;
@@ -60,6 +59,7 @@ import org.wso2.carbon.mongodb.util.MongoDBRealmUtil;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.Secret;
+import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.mongodb.query.MongoQueryException;
 
@@ -563,31 +563,44 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
 
-    private String preparePassword(String password, String saltValue) throws UserStoreException {
+    private String preparePassword(Object password, String saltValue) throws UserStoreException {
+
+        Secret credentialObj;
+        try {
+            credentialObj = Secret.getSecret(password);
+        } catch (UnsupportedSecretTypeException e) {
+            throw new UserStoreException("Unsupported credential type", e);
+        }
 
         try {
-            String digestInput = password;
+            String passwordString;
             if (saltValue != null) {
-                digestInput = password + saltValue;
+                credentialObj.addChars(saltValue.toCharArray());
             }
-            String digsestFunction = realmConfig.getUserStoreProperties().get(
-                    MongoDBRealmConstants.DIGEST_FUNCTION);
-            if (digsestFunction != null) {
 
-                if (digsestFunction
-                        .equals(UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT)) {
-                    return password;
+            String digestFunction = realmConfig.getUserStoreProperties().get(MongoDBRealmConstants.DIGEST_FUNCTION);
+            if (digestFunction != null) {
+                if (digestFunction.equals(UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT)) {
+                    passwordString = new String(credentialObj.getChars());
+                    return passwordString;
                 }
 
-                MessageDigest dgst = MessageDigest.getInstance(digsestFunction);
-                byte[] byteValue = dgst.digest(digestInput.getBytes("UTF-8"));
-                password = Base64.encode(byteValue);
+                MessageDigest digest = MessageDigest.getInstance(digestFunction);
+                byte[] byteValue = digest.digest(credentialObj.getBytes());
+                passwordString = Base64.encode(byteValue);
+            } else {
+                passwordString = new String(credentialObj.getChars());
             }
-            return password;
+
+            return passwordString;
         } catch (NoSuchAlgorithmException e) {
-            throw new UserStoreException(e.getMessage(), e);
-        } catch (UnsupportedEncodingException e) {
-            throw new UserStoreException(e.getMessage(), e);
+            String msg = "Error occurred while preparing password.";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            credentialObj.clear();
         }
     }
 
@@ -642,7 +655,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 MongoDBRealmConstants.STORE_SALTED_PASSWORDS))) {
             saltValue = generateSaltValue();
         }
-        String password = this.preparePassword((String) newCredential, saltValue);
+        String password = this.preparePassword(newCredential, saltValue);
         map.put("UM_USER_NAME", userName);
         map.put("UM_USER_PASSWORD", password);
 
@@ -757,7 +770,6 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
 
     private void updateUserClaimValuesToDatabase(DB dbConnection, Map<String, Object> map, boolean isUpdateTrue) throws UserStoreException {
 
-
         if (map == null) {
 
             throw new UserStoreException("Parameters cannot be null");
@@ -812,14 +824,14 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
 
                     log.debug("Exception occur while querying :" + ex.getMessage());
                 }
-                throw new UserStoreException("Error occured cannot add user store property :" + ex.getMessage());
+                throw new UserStoreException("Error occurred cannot add user store property :" + ex.getMessage());
             } catch (Exception ex) {
 
                 if (log.isDebugEnabled()) {
 
                     log.debug("Exception occur while querying :" + ex.getMessage());
                 }
-                throw new UserStoreException("Error occured cannot add user store property :" + ex.getMessage());
+                throw new UserStoreException("Error occurred cannot add user store property :" + ex.getMessage());
             }
         }
     }
@@ -1999,8 +2011,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                     + " in the system. Please pick another role name.");
         }
         String mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.UPDATE_ROLE_NAME);
-        map.put("UM_ROLE_NAME", roleName);
-        map.put("UM_NEW_ROLE_NAME", newRoleName);
+        map.put("UM_ROLE_NAME", newRoleName);
         if (mongoQuery == null) {
             throw new UserStoreException("The mongo statement for update role name is null");
         }
@@ -2009,6 +2020,10 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
 
             roleName = ctx.getRoleName();
             dbConnection = loadUserStoreSpacificDataSoruce();
+            String roles[] = {roleName};
+            int roleIds[] = getRolesIDS(dbConnection, roles);
+            map.put("UM_ID", roleIds[0]);
+
             if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
 
                 map.put("UM_TENANT_ID", tenantId);

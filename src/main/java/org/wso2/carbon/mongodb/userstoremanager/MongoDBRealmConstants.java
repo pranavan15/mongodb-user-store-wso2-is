@@ -99,7 +99,7 @@ public class MongoDBRealmConstants {
         public static final String ADD_SHARED_ROLE_MONGO_QUERY = "{'collection' : 'UM_ROLE','UM_ROLE_NAME' : '?','UM_TENANT_ID' : '?','projection' : {'$set' : {'UM_SHARED_ROLE' : '?'}}}";
 
 	    public static final String UPDATE_USER_PASSWORD_MONGO_QUERY = "{'collection' : 'UM_USER','UM_USER_NAME' : '?','UM_TENANT_ID' : '?','projection' : {'$set'  : {'UM_USER_PASSWORD' : '?','UM_SALT_VALUE' : '?','UM_REQUIRE_CHANGE' : '?','UM_CHANGED_TIME' : '?'}}}";
-	    public static final String UPDATE_ROLE_NAME_MONGO_QUERY="{'collection' : 'UM_ROLE','UM_ROLE_NAME' : '?','UM_TENANT_ID' : '?','projection' : {'$set' : {'UM_ROLE_NAME' : '?'}}}";
+	    public static final String UPDATE_ROLE_NAME_MONGO_QUERY="{'collection' : 'UM_ROLE','UM_ID' : '?','UM_TENANT_ID' : '?','projection' : {'$set' : {'UM_ROLE_NAME' : '?'}}}";
 
 
 	    public static final String ADD_USER_PROPERTY_MONGO_QUERY = "{'collection' : 'UM_USER_ATTRIBUTE','UM_USER_ID' : '?','UM_ATTR_NAME' : '?','UM_ATTR_VALUE' : '?','UM_PROFILE_ID' : '?','UM_TENANT_ID' : '?'}";
