@@ -41,7 +41,7 @@ This is an extension, which consists of a user store implemented using MongoDB (
 
 - Finally, open a terminal, navigate to the `bin` folder of product-IS and start the IS server by executing the following command
 ```bash
-./wso2server.sh
+   ./wso2server.sh
 ```
 
 Now you have successfully added the mongoDB user store extension to the product-IS. You should see MongoDB user store listed along with other user stores and using which you can create a MonogDB secondary user store and started using it for your user management operations. 
