@@ -83,7 +83,6 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
      */
     public MongoDBUserStoreManager() {
 
-
     }
 
     /**

@@ -53,7 +53,6 @@ db.UM_TENANT.insert({
 });
 db.UM_TENANT.createIndex({UM_ID: 16},{unique: true});
 db.UM_TENANT.createIndex({UM_DOMAIN_NAME: 5},{unique: true});
-db.UM_TENANT.find();
 
 
 db.COUNTERS.insert({
@@ -69,7 +68,6 @@ db.UM_DOMAIN.insert({
     UM_TENANT_ID: 0
 });
 db.UM_DOMAIN.createIndex({UM_DOMAIN_ID: 16,UM_TENANT_ID: 16},{unique: true});
-db.UM_DOMAIN.find();
 
 
 db.COUNTERS.insert({
@@ -89,8 +87,7 @@ db.UM_USER.insert({
      UM_TENANT_ID: 0
 });
 db.UM_USER.createIndex({UM_ID: 16,UM_TENANT_ID: 16},{unique: true});
-db.UM_USER.createIndex({UM_USER_NAME: 5},{unique: true});
-db.UM_USER.find();
+db.UM_USER.createIndex({UM_USER_NAME: 5,UM_TENANT_ID: 16},{unique: true});
 
 
 db.COUNTERS.insert({
@@ -110,7 +107,7 @@ db.UM_SYSTEM_USER.insert({
      UM_TENANT_ID: 0
 });
 db.UM_SYSTEM_USER.createIndex({UM_ID: 16,UM_TENANT_ID: 16},{unique: true});
-db.UM_SYSTEM_USER.createIndex({UM_USER_NAME: 5},{unique: true});
+db.UM_SYSTEM_USER.createIndex({UM_USER_NAME: 5,UM_TENANT_ID: 16},{unique: true});
 
 
 db.COUNTERS.insert({
@@ -127,7 +124,7 @@ db.UM_ROLE.insert({
      UM_SHARED_ROLE: false
 });
 db.UM_ROLE.createIndex({UM_ID: 16,UM_TENANT_ID: 16},{unique: true});
-db.UM_ROLE.createIndex({UM_ROLE_NAME: 5},{unique: true});
+db.UM_ROLE.createIndex({UM_ROLE_NAME: 5,UM_TENANT_ID: 16},{unique: true});
 
 
 db.COUNTERS.insert({
@@ -143,6 +140,8 @@ db.UM_MODULE.insert({
 });
 db.UM_MODULE.createIndex({UM_ID: 16},{unique: true});
 db.UM_MODULE.createIndex({UM_MODULE_NAME: 5},{unique: true});
+
+
 db.UM_MODULE_ACTIONS.insert({
    UM_ACTION: "ACT",
    UM_MODULE_ID: 1
@@ -162,10 +161,10 @@ db.UM_PERMISSION.insert({
     UM_RESOURCE_ID: "", 
     UM_ACTION: "", 
     UM_TENANT_ID: 0, 
-    UM_MODULE_ID: 1
+    UM_MODULE_ID: 0
 });
 db.UM_PERMISSION.createIndex({UM_ID: 16,UM_TENANT_ID: 16},{unique: true});
-db.UM_PERMISSION.createIndex({UM_RESOURCE_ID: 5,UM_ACTION: 5});
+db.UM_PERMISSION.createIndex({UM_RESOURCE_ID: 5,UM_ACTION: 5,UM_TENANT_ID: 16},{unique: true});
 
 
 db.COUNTERS.insert({
@@ -245,7 +244,8 @@ db.UM_ACCOUNT_MAPPING.insert({
     UM_ACC_LINK_ID: 0
 });
 db.UM_ACCOUNT_MAPPING.createIndex({UM_ID: 16},{unique: true});
-db.UM_ACCOUNT_MAPPING.createIndex({UM_USER_NAME: 5,UM_TENANT_ID: 16,UM_USER_STORE_DOMAIN: 5,UM_ACC_LINK_ID: 0},{unique: true});
+db.UM_ACCOUNT_MAPPING.createIndex({UM_USER_NAME: 5,UM_TENANT_ID: 16,UM_USER_STORE_DOMAIN: 5,UM_ACC_LINK_ID: 16},
+{unique: true});
 
 
 db.COUNTERS.insert({
@@ -264,7 +264,8 @@ db.UM_USER_ATTRIBUTE.insert({
         UM_USER_ID: 1, 
         UM_TENANT_ID: 0
 });
-db.UM_USER_ATTRIBUTE.createIndex({UM_ID: 16,UM_TENANT_ID: 0},{unique: true});
+db.UM_USER_ATTRIBUTE.createIndex({UM_ID: 16,UM_TENANT_ID: 16},{unique: true});
+db.UM_USER_ATTRIBUTE.createIndex({UM_USER_ID: 16});
 
 
 db.COUNTERS.insert({
@@ -328,6 +329,23 @@ db.UM_PROFILE_CONFIG.createIndex({UM_ID: 16,UM_TENANT_ID: 16},{unique: true});
 
 db.COUNTERS.insert({
 
+    _id: "UM_CLAIM_BEHAVIOR",
+
+    seq: 0
+
+});
+db.UM_CLAIM_BEHAVIOR.insert({
+    UM_ID : getNextSequence("UM_CLAIM_BEHAVIOR"),
+    UM_PROFILE_ID: 1,
+    UM_CLAIM_ID: 1,
+    UM_BEHAVIOUR: 0,
+    UM_TENANT_ID: 0
+});
+db.UM_CLAIM_BEHAVIOR.createIndex({UM_ID: 16,UM_TENANT_ID: 16},{unique: true});
+
+
+db.COUNTERS.insert({
+
     _id: "UM_HYBRID_ROLE",
 
     seq: 0
@@ -372,6 +390,7 @@ db.UM_SYSTEM_ROLE.insert({
     UM_TENANT_ID: 0
 });
 db.UM_SYSTEM_ROLE.createIndex({UM_ID: 16,UM_TENANT_ID: 16},{unique: true});
+db.UM_SYSTEM_ROLE.createIndex({UM_ROLE_NAME: 5,UM_TENANT_ID: 16});
 
 
 db.COUNTERS.insert({
@@ -406,5 +425,4 @@ db.UM_HYBRID_REMEMBER_ME.insert({
    UM_TENANT_ID: 0
 });
 db.UM_HYBRID_REMEMBER_ME.createIndex({UM_ID: 16,UM_TENANT_ID: 16},{unique: true});
-
 
