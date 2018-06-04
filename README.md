@@ -1,7 +1,7 @@
 # MongoDB User Store Extension for WSO2 IS
 
 ## Introduction
-This is an extension, which consists of a user store implemented using MongoDB (A NoSQL Database) for WSO2 Product-IS. This extension is compatible with IS verison 5.5.0. 
+This is an extension, which consists of a user store implemented using MongoDB (A NoSQL Database) for WSO2 Product-IS. This MongoDB user store extension can be used as both primary and secondary user store for product-IS. This extension is compatible with IS version 5.5.0. 
 
 ## Prerequisites
 - [MongoDB user store extension](https://github.com/pranavan15/mongodb-user-store-wso2-is/archive/master.zip)
@@ -29,12 +29,12 @@ This is an extension, which consists of a user store implemented using MongoDB (
    mongo --host 127.0.0.1:27017
 ```
 
-- Create a database named `wso2_carbon_db` by issuing the following command in the Mongo shell
+- Create a database named `wso2_carbon_db` by entering the following command in the Mongo shell
 ```bash
    use wso2_carbon_db
 ```
 
-- Create the necessary collections by running the MongoDB script file [user_mgt_collections.js](/dbscripts/user_mgt_collections.js) provided by issuing the following command in the Mongo shell
+- Create the necessary collections by running the MongoDB script file [user_mgt_collections.js](/dbscripts/user_mgt_collections.js) provided by executing the following command in the Mongo shell
 ```bash
    load(<PATH_TO_THE_SCRIPT_FILE>)
 ```
