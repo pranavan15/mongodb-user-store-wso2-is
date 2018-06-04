@@ -2658,14 +2658,14 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
      */
     public Properties getDefaultUserStoreProperties() {
 
-        Property[] mandatoryProperties = MongoDBUserStoreConstants.CUSTOM_UM_MANDATORY_PROPERTIES.toArray(
-                new Property[MongoDBUserStoreConstants.CUSTOM_UM_MANDATORY_PROPERTIES.size()]
+        Property[] mandatoryProperties = MongoDBUserStoreConstants.MONGODB_UM_MANDATORY_PROPERTIES.toArray(
+                new Property[MongoDBUserStoreConstants.MONGODB_UM_MANDATORY_PROPERTIES.size()]
         );
-        Property[] optionalProperties = MongoDBUserStoreConstants.CUSTOM_UM_OPTIONAL_PROPERTIES.toArray(
-                new Property[MongoDBUserStoreConstants.CUSTOM_UM_OPTIONAL_PROPERTIES.size()]
+        Property[] optionalProperties = MongoDBUserStoreConstants.MONGODB_UM_OPTIONAL_PROPERTIES.toArray(
+                new Property[MongoDBUserStoreConstants.MONGODB_UM_OPTIONAL_PROPERTIES.size()]
         );
-        Property[] advancedProperties = MongoDBUserStoreConstants.CUSTOM_UM_ADVANCED_PROPERTIES.toArray(
-                new Property[MongoDBUserStoreConstants.CUSTOM_UM_ADVANCED_PROPERTIES.size()]
+        Property[] advancedProperties = MongoDBUserStoreConstants.MONGODB_UM_ADVANCED_PROPERTIES.toArray(
+                new Property[MongoDBUserStoreConstants.MONGODB_UM_ADVANCED_PROPERTIES.size()]
         );
         Properties properties = new Properties();
         properties.setMandatoryProperties(mandatoryProperties);
