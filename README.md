@@ -53,7 +53,7 @@ The above configurations are good enough for you to use the MongoDB as a seconda
 
 After following steps 1-7, prior to start the IS server, add the following in the `user-mgt.xml` file of product-IS. You can find this file inside `/repository/conf` folder. 
 
-```
+```java
 <UserStoreManager class="org.wso2.carbon.mongodb.userstoremanager.MongoDBUserStoreManager">
     <Property name="TenantManager">org.wso2.carbon.user.core.tenant.JDBCTenantManager</Property>
 	<Property name="PasswordDigest">SHA-256</Property>
