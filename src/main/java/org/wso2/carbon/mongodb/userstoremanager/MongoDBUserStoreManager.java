@@ -1279,7 +1279,6 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         try {
 
             dbConnection = loadUserStoreSpecificDataSource();
-            // Map<String,Object> map = new HashMap<String, Object>();
             String mongoQuery2;
             if (isShared) {
                 mongoQuery2 = realmConfig.getUserStoreProperty(MongoDBRealmConstants.ADD_SHARED_ROLE_TO_USER);
@@ -2043,7 +2042,6 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
 
                 prepStmt.setInt("UM_TENANT_ID", tenantId);
             }
-            //byte count = 0;
             DBCursor cursor;
             try {
 
@@ -2058,11 +2056,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                         lst.add(name);
                     }
                 }
-//
-//			if (isSharedGroupEnabled()) {
-//				lst.addAll(Arrays.asList(doGetSharedRoleNames(null, filter, maxItemLimit)));
-//			}
-//
+
                 if (lst.size() > 0) {
                     roles = lst.toArray(new String[lst.size()]);
                 }
@@ -2269,7 +2263,6 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
 
             mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.GET_SHARED_ROLE_LIST);
             prepStmt = new MongoPreparedStatementImpl(dbConnection, mongoQuery);
-            //byte count=0;
             prepStmt.setString("UM_ROLE_NAME", filter);
             try {
                 cursor = prepStmt.find();
@@ -2633,8 +2626,8 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             }
         } catch (Exception e) {
             log.error("Validating remember me token failed for" + userName);
-            // not throwing exception.
-            // because we need to seamlessly direct them to login uis
+            // Not throwing the exception
+            // Because we need to seamlessly direct them to login UIs
         }
 
         return false;
@@ -3110,181 +3103,9 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
 
         String domain = UserCoreUtil.getDomainName(this.realmConfig);
         if (domain != null) {
-            //  MongoUserCoreUtil.persistDomain(domain, this.tenantId, this.db);
             UserCoreUtil.persistDomain(domain, this.tenantId, dataSource);
         }
     }
-
-    /*protected void addInitialAdminData(boolean addAdmin, boolean initialSetup) throws UserStoreException {
-
-        if (realmConfig.getAdminRoleName() == null || realmConfig.getAdminUserName() == null) {
-            log.error("Admin user name or role name is not valid. Please provide valid values.");
-            throw new UserStoreException(
-                    "Admin user name or role name is not valid. Please provide valid values.");
-        }
-        String adminUserName = UserCoreUtil.removeDomainFromName(realmConfig.getAdminUserName());
-        String adminRoleName = UserCoreUtil.removeDomainFromName(realmConfig.getAdminRoleName());
-        boolean userExist = false;
-        boolean roleExist = false;
-        boolean isInternalRole = false;
-
-        try {
-            if (Boolean.parseBoolean(this.getRealmConfiguration().getUserStoreProperty(
-                    UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED))) {
-                roleExist = doCheckExistingRole(adminRoleName);
-            }
-        } catch (Exception e) {
-            //ignore
-        }
-
-        if (!roleExist) {
-            try {
-                roleExist = hybridRoleManager.isExistingRole(adminRoleName);
-            } catch (Exception e) {
-                //ignore
-            }
-            if (roleExist) {
-                isInternalRole = true;
-            }
-        }
-
-        try {
-            userExist = doCheckExistingUser(adminUserName);
-        } catch (Exception e) {
-            //ignore
-        }
-
-        if (!userExist) {
-            if (isReadOnly()) {
-                String message = "Admin user can not be created in primary user store. " +
-                        "User store is read only. " +
-                        "Please pick a user name which is exist in the primary user store as Admin user";
-                if (initialSetup) {
-                    throw new UserStoreException(message);
-                } else if (log.isDebugEnabled()) {
-                    log.error(message);
-                }
-            } else if (addAdmin) {
-                try {
-                    this.doAddUser(adminUserName, realmConfig.getAdminPassword(),
-                            null, null, null, false);
-                } catch (Exception e) {
-                    String message = "Admin user has not been created. " +
-                            "Error occurs while creating Admin user in primary user store.";
-                    if (initialSetup) {
-                        throw new UserStoreException(message, e);
-                    } else if (log.isDebugEnabled()) {
-                        log.error(message, e);
-                    }
-                }
-            } else {
-                if (initialSetup) {
-                    String message = "Admin user can not be created in primary user store. " +
-                            "Add-Admin has been set to false. " +
-                            "Please pick a User name which is exist in the primary user store as Admin user";
-                    if (log.isDebugEnabled()) {
-                        log.error(message);
-                    }
-                    throw new UserStoreException(message);
-                }
-            }
-        }
-
-        if (!roleExist) {
-            if (addAdmin) {
-                if (!isReadOnly() && writeGroupsEnabled) {
-                    try {
-                        this.doAddRole(adminRoleName, new String[]{adminUserName}, false);
-                    } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                        String message = "Admin role has not been created. " +
-                                "Error occurs while creating Admin role in primary user store.";
-                        if (initialSetup) {
-                            throw new UserStoreException(message, e);
-                        } else if (log.isDebugEnabled()) {
-                            log.error(message, e);
-                        }
-                    }
-                } else {
-                    // creates internal role
-                    try {
-                        hybridRoleManager.addHybridRole(adminRoleName, new String[]{adminUserName});
-                        isInternalRole = true;
-                    } catch (Exception e) {
-                        String message = "Admin role has not been created. " +
-                                "Error occurs while creating Admin role in primary user store.";
-                        if (initialSetup) {
-                            throw new UserStoreException(message, e);
-                        } else if (log.isDebugEnabled()) {
-                            log.error(message, e);
-                        }
-                    }
-                }
-            } else {
-                String message = "Admin role can not be created in primary user store. " +
-                        "Add-Admin has been set to false. " +
-                        "Please pick a Role name which is exist in the primary user store as Admin Role";
-                if (initialSetup) {
-                    throw new UserStoreException(message);
-                } else if (log.isDebugEnabled()) {
-                    log.error(message);
-                }
-            }
-        }
-
-        if (isInternalRole) {
-            if (!hybridRoleManager.isUserInRole(adminUserName, adminRoleName)) {
-                try {
-                    hybridRoleManager.updateHybridRoleListOfUser(adminUserName, null,
-                            new String[]{adminRoleName});
-                } catch (Exception e) {
-                    String message = "Admin user has not been assigned to Admin role. " +
-                            "Error while assignment is done";
-                    if (initialSetup) {
-                        throw new UserStoreException(message, e);
-                    } else if (log.isDebugEnabled()) {
-                        log.error(message, e);
-                    }
-                }
-            }
-            realmConfig.setAdminRoleName(UserCoreUtil.addInternalDomainName(adminRoleName));
-        } else if (!isReadOnly() && writeGroupsEnabled) {
-            if (!this.doCheckIsUserInRole(adminUserName, adminRoleName)) {
-                if (addAdmin) {
-                    try {
-                        this.doUpdateRoleListOfUser(adminUserName, null,
-                                new String[]{adminRoleName});
-                    } catch (Exception e) {
-                        String message = "Admin user has not been assigned to Admin role. " +
-                                "Error while assignment is done";
-                        if (initialSetup) {
-                            throw new UserStoreException(message, e);
-                        } else if (log.isDebugEnabled()) {
-                            log.error(message, e);
-                        }
-                    }
-                } else {
-                    String message = "Admin user can not be assigned to Admin role " +
-                            "Add-Admin has been set to false. Please do the assign it in user store level";
-                    if (initialSetup) {
-                        throw new UserStoreException(message);
-                    } else if (log.isDebugEnabled()) {
-                        log.error(message);
-                    }
-                }
-            }
-        }
-
-        doInitialUserAdding();
-    }
-*/
-/*
-    protected void doInitialSetup() throws UserStoreException {
-
-        systemUserRoleManager = new SystemUserRoleManager(dataSource, tenantId);
-        hybridRoleManager = new HybridRoleManager(dataSource, tenantId, realmConfig, userRealm);
-    }
-*/
-
 
     public boolean isExistingRole(String roleName, boolean shared) throws org.wso2.carbon.user.api.UserStoreException {
         if (shared) {
@@ -3467,53 +3288,6 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         return attributeList;
     }
 
-    /*
-     */
-/**
- * @throws UserStoreException if error occurred
- *//*
-
-    protected void doInitialUserAdding() throws UserStoreException {
-
-        String systemUser = UserCoreUtil.removeDomainFromName(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME);
-        String systemRole = UserCoreUtil.removeDomainFromName(CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME);
-
-        if (!systemUserRoleManager.isExistingSystemUser(systemUser)) {
-            systemUserRoleManager.addSystemUser(systemUser,
-                    UserCoreUtil.getPolicyFriendlyRandomPassword(systemUser), null);
-        }
-
-        if (!systemUserRoleManager.isExistingRole(systemRole)) {
-            systemUserRoleManager.addSystemRole(systemRole, new String[]{systemUser});
-        }
-
-        if (!hybridRoleManager.isExistingRole(UserCoreUtil.removeDomainFromName(realmConfig
-                .getEveryOneRoleName()))) {
-            hybridRoleManager.addHybridRole(
-                    UserCoreUtil.removeDomainFromName(realmConfig.getEveryOneRoleName()), null);
-        }
-    }
-*/
-
-/*
-    protected boolean isInitSetupDone() throws UserStoreException {
-
-        boolean isInitialSetUp = false;
-        String systemUser = UserCoreUtil.removeDomainFromName(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME);
-        String systemRole = UserCoreUtil.removeDomainFromName(CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME);
-
-        if (systemUserRoleManager.isExistingSystemUser(systemUser)) {
-            isInitialSetUp = true;
-        }
-
-        if (systemUserRoleManager.isExistingRole(systemRole)) {
-            isInitialSetUp = true;
-        }
-
-        return isInitialSetUp;
-    }
-*/
-
     /**
      * @return the domain name of user
      */
@@ -3561,7 +3335,6 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
      * @return whether the role is shared or not
      */
     public boolean isSharedRole(String roleName, String roleNameBase) {
-
         // Only checks the shared groups are enabled
         return isSharedGroupEnabled();
     }

@@ -13,7 +13,6 @@ import org.wso2.carbon.user.core.UserStoreConfigConstants;
  */
 class MongoDBUserStoreConstants {
 
-
     private static final List<Property> CUSTOM_UM_MANDATORY_PROPERTIES_TEMP = new ArrayList<Property>();
     private static final List<Property> CUSTOM_UM_OPTIONAL_PROPERTIES_TEMP = new ArrayList<Property>();
     private static final List<Property> CUSTOM_UM_ADVANCED_PROPERTIES_TEMP = new ArrayList<Property>();
@@ -23,11 +22,6 @@ class MongoDBUserStoreConstants {
         CUSTOM_UM_OPTIONAL_PROPERTIES_TEMP.add(property);
 
     }
-        /*private static void setMandatoryProperty(String name, String value, String description) {
-	        Property property = new Property(name, value, description, null);
-	        CUSTOM_UM_MANDATORY_PROPERTIES.add(property);
-
-	    }*/
 
     private static void setMandatoryProperty(String name, String displayName, String value,
                                              String description, boolean encrypt) {
@@ -63,15 +57,14 @@ class MongoDBUserStoreConstants {
         setProperty("PasswordJavaRegEx", "^[\\S]{5,30}$", "A regular expression to validate passwords");
         setProperty("PasswordJavaScriptRegEx", "^[\\S]{5,30}$", "The regular expression used by the font-end components for password validation");
         setProperty("UsernameJavaRegEx", "^[\\S]{5,30}$", "A regular expression to validate user names");
-//        setProperty("UsernameJavaRegEx","^[^~!#$;%^*+={}\\\\|\\\\\\\\&lt;&gt;,\\\'\\\"]{3,30}$","A regular expression to validate user names");
         setProperty("UsernameJavaScriptRegEx", "^[\\S]{5,30}$", "The regular expression used by the font-end components for username validation");
         setProperty("RolenameJavaRegEx", "^[\\S]{5,30}$", "A regular expression to validate role names");
-//        setProperty("RolenameJavaRegEx","^[^~!#$;%^*+={}\\\\|\\\\\\\\&lt;&gt;,\\\'\\\"]{3,30}$","A regular expression to validate role names");
         setProperty("RolenameJavaScriptRegEx", "^[\\S]{5,30}$", "The regular expression used by the font-end components for role name validation");
         setProperty(UserStoreConfigConstants.SCIMEnabled, "false", UserStoreConfigConstants.SCIMEnabledDescription);
         setProperty(MongoDBCaseInsensitiveConstants.CASE_SENSITIVE_USERNAME, "true",
                 MongoDBCaseInsensitiveConstants.CASE_SENSITIVE_USERNAME_DESCRIPTION);
-        //Advanced Properties (No descriptions added for each property)
+
+        //Advanced Properties
         setAdvancedProperty("Enable SCIM", "false");
         setAdvancedProperty("Is Bulk Import Supported", "false");
         setAdvancedProperty("Password Hashing Algorithm", "SHA-256");

@@ -294,11 +294,11 @@ public class MongoDatabaseUtil {
                 Object userTenantValue = params.get("UM_USER_TENANT_ID");
                 Object tenantValue = params.get("UM_TENANT_ID");
 
-                if(roleTenantValue != null) {
+                if (roleTenantValue != null) {
                     int roleTenantId = (Integer) roleTenantValue;
                     prepStmt.setInt("UM_ROLE_TENANT_ID", roleTenantId);
                 }
-                if(userTenantValue != null) {
+                if (userTenantValue != null) {
                     int userTenantId = (Integer) userTenantValue;
                     prepStmt.setInt("UM_USER_TENANT_ID", userTenantId);
                 }
