@@ -35,7 +35,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 /**
  * @scr.component name="mongodb.userstoremanager.dscomponent" immediate=true inherit=false
  */
-@SuppressWarnings({"unused"})
+@SuppressWarnings({"unused", "JavaDoc"})
 public class MongoDBUserStoreDSComponent extends UserStoreMgtDSComponent {
 
     private static final Log log = LogFactory.getLog(MongoDBUserStoreDSComponent.class);
