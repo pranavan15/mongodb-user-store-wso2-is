@@ -34,6 +34,18 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 /**
  * @scr.component name="mongodb.userstoremanager.dscomponent" immediate=true inherit=false
+ * @scr.reference name="user.realmservice.default"
+ * interface="org.wso2.carbon.user.core.service.RealmService" cardinality="1..1"
+ * policy="dynamic" bind="setRealmService"
+ * unbind="unsetRealmService"
+ * @scr.reference name="server.configuration.service"
+ * interface="org.wso2.carbon.base.api.ServerConfigurationService" cardinality="1..1"
+ * policy="dynamic"  bind="setServerConfigurationService"
+ * unbind="unsetServerConfigurationService"
+ * @scr.reference name="claim.mgt.component"
+ * interface="org.wso2.carbon.user.core.claim.ClaimManagerFactory" cardinality="0..1"
+ * policy="dynamic"  bind="setClaimManagerFactory"
+ * unbind="unsetClaimManagerFactory"
  */
 @SuppressWarnings({"unused", "JavaDoc"})
 public class MongoDBUserStoreDSComponent extends UserStoreMgtDSComponent {
