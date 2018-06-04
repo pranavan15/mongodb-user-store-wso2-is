@@ -44,4 +44,7 @@ This is an extension, which consists of a user store implemented using MongoDB (
    ./wso2server.sh
 ```
 
-Now you have successfully added the mongoDB user store extension to the product-IS. You should see MongoDB user store listed along with other user stores and using which you can create a MonogDB secondary user store and started using it for your user management operations. 
+Now you have successfully added the mongoDB user store extension to the product-IS. You should see MongoDB user store listed along with other user stores using which you can create a MonogDB secondary user store and started using it for your user management operations. 
+
+
+### Configuring MongoDB as the Primary User Store
