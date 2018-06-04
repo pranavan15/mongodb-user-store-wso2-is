@@ -121,19 +121,19 @@ class MongoDBUserStoreConstants {
         setAdvancedProperty("GetUserIDFromUserNameMONGO_QUERY", "{'collection' : 'UM_USER','UM_USER_NAME' : '?','UM_TENANT_ID' : '?','projection' : {'UM_ID' : 1}}");
         setAdvancedProperty(MongoDBCaseInsensitiveConstants.GET_USERID_FROM_USERNAME_CASE_INSENSITIVE,
                 MongoDBCaseInsensitiveConstants
-                        .GET_USERID_FROM_USERNAME_MONGO_INSENSITIVE);
+                        .GET_USERID_FROM_USERNAME_MONGO_CASE_INSENSITIVE);
         setAdvancedProperty(MongoDBCaseInsensitiveConstants.ADD_ROLE_TO_USER_CASE_INSENSITIVE, MongoDBCaseInsensitiveConstants.ADD_ROLE_TO_USER_MONGO_CASE_INSENSITIVE);
         setAdvancedProperty("GetUserNameFromTenantIDMONGO_QUERY", "{'collection' : 'UM_USER','UM_TENANT_ID' : '?','projection' : {'UM_USER_NAME' : 1}}");
         setAdvancedProperty("GetTenantIDFromUserNameMONGO_QUERY", "{'collection' : 'UM_USER','UM_USER_NAME' : '?','projection' : {'UM_USER_NAME' : 1}}");
         setAdvancedProperty(MongoDBCaseInsensitiveConstants.GET_TENANT_ID_FROM_USERNAME_CASE_INSENSITIVE,
                 MongoDBCaseInsensitiveConstants
-                        .GET_TENANT_ID_FROM_USERNAME_MONGO_INSENSITIVE);
+                        .GET_TENANT_ID_FROM_USERNAME_MONGO_CASE_INSENSITIVE);
 
         setAdvancedProperty("AddUserMONGO_QUERY", "{'collection' : 'UM_USER','UM_USER_NAME' : '?','UM_USER_PASSWORD' : '?','UM_SALT_VALUE' : '?','UM_REQUIRE_CHANGE' : '?','UM_CHANGED_TIME' : '?','UM_TENANT_ID' : '?','UM_ID' : '?'}");
         setAdvancedProperty("AddUserToRoleMONGO_QUERY", "{'collection' : 'UM_USER_ROLE','UM_USER_ID' : '?','UM_ROLE_ID' : '?','UM_TENANT_ID' : '?'}");
         setAdvancedProperty(MongoDBCaseInsensitiveConstants.ADD_USER_TO_ROLE_CASE_INSENSITIVE, "Add User To Role " +
                 MongoDBCaseInsensitiveConstants
-                        .ADD_USER_TO_ROLE_MONGO__CASE_INSENSITIVE);
+                        .ADD_USER_TO_ROLE_MONGO_CASE_INSENSITIVE);
         setAdvancedProperty("AddRoleMONGO_QUERY", "{'collection' : 'UM_ROLE','UM_ROLE_NAME' : '?','UM_TENANT_ID' : '?','UM_ID' : '?'}");
         setAdvancedProperty("AddSharedRoleMONGO_QUERY", "{'collection' : 'UM_ROLE','UM_ROLE_NAME' : '?','UM_TENANT_ID' : '?','projection' : {'$set' : {'UM_SHARED_ROLE' : '?'}}}");
 
@@ -144,9 +144,6 @@ class MongoDBUserStoreConstants {
                         .ADD_SHARED_ROLE_TO_USER_MONGO_CASE_INSENSITIVE);
         setAdvancedProperty("RemoveUserFromSharedRoleMONGO_QUERY", "{'collection' : 'UM_SHARED_USER_ROLE','UM_ROLE_ID' : '?','UM_USER_ID' : '?','UM_USER_TENANT_ID' : '?','UM_ROLE_TENANT_ID' : '?'}");
         setAdvancedProperty("RemoveUserFromRoleMONGO_QUERY", "{'collection' : 'UM_USER_ROLE','UM_USER_ID' : '?','UM_ROLE_ID' : '?','UM_TENANT_ID' : '?'}");
-        setAdvancedProperty(MongoDBCaseInsensitiveConstants.REMOVE_USER_FROM_ROLE_CASE_INSENSITIVE,
-                MongoDBCaseInsensitiveConstants
-                        .REMOVE_USER_FROM_ROLE_MONGO_CASE_INSENSITIVE);
 
         setAdvancedProperty("RemoveRoleFromUserMONGO_QUERY", "{'collection' : 'UM_USER_ROLE','UM_ROLE_ID' : '?','UM_USER_ID': '?','UM_TENANT_ID' : '?'}");
         setAdvancedProperty(MongoDBCaseInsensitiveConstants.REMOVE_USER_FROM_ROLE_CASE_INSENSITIVE,

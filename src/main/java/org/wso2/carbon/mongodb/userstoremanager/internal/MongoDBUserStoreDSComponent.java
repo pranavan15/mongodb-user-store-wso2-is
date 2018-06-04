@@ -21,19 +21,21 @@ public class MongoDBUserStoreDSComponent {
 
     private static final Log log = LogFactory.getLog(MongoDBUserStoreDSComponent.class);
 
-    protected void activate(ComponentContext cc) throws Exception {
+    protected void activate(ComponentContext ctxt) throws Exception {
 
         PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
                 .getThreadLocalCarbonContext();
         carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
         carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
-        UserStoreManager userStoreManager = new MongoDBUserStoreManager();
-        RealmService service = new DefaultRealmService(cc.getBundleContext());
+
+        UserStoreManager mongoUserStoreManager = new MongoDBUserStoreManager();
+        ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), mongoUserStoreManager, null);
+
+        UserStoreManagerRegistry.init(ctxt.getBundleContext());
+
+        RealmService service = new DefaultRealmService(ctxt.getBundleContext());
         MongoDBUserStoreManager.setDBDataSource(DatabaseUtil.getRealmDataSource(service.getBootstrapRealmConfiguration()));
-        cc.getBundleContext().registerService(UserStoreManager.class.getName(), userStoreManager, null);
         log.info("MongoDB User Store bundle activated successfully..");
-        UserStoreManagerRegistry.init(cc.getBundleContext());
-        System.out.println("Mongo Started");
     }
 
     @SuppressWarnings({"RedundantThrows", "UnusedParameters"})

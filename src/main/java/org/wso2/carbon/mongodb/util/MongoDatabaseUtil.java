@@ -75,9 +75,8 @@ public class MongoDatabaseUtil {
         int port;
         if (realmConfiguration.getUserStoreProperty(MongoDBRealmConstants.PASSWORD) != null) {
             pass = realmConfiguration.getUserStoreProperty(MongoDBRealmConstants.PASSWORD).toCharArray();
-
         } else {
-            pass = "admin123".toCharArray();
+            pass = "admin".toCharArray();
         }
         List<MongoCredential> credentials = new ArrayList<MongoCredential>();
         String userName;
@@ -87,8 +86,8 @@ public class MongoDatabaseUtil {
         } else {
             userName = "admin";
         }
-        if (realmConfiguration.getUserStoreProperty(MongoDBRealmConstants.PORT).length() > 0) {
-
+        if (realmConfiguration.getUserStoreProperty(MongoDBRealmConstants.PORT) != null &&
+                realmConfiguration.getUserStoreProperty(MongoDBRealmConstants.PORT).length() > 0) {
             port = Integer.parseInt(realmConfiguration.getUserStoreProperty(MongoDBRealmConstants.PORT));
         } else {
             port = 27017;
@@ -291,8 +290,22 @@ public class MongoDatabaseUtil {
                 int roleID = (Integer) params.get("UM_ROLE_ID");
                 prepStmt.setInt("UM_USER_ID", userID);
                 prepStmt.setInt("UM_ROLE_ID", roleID);
-                int tenantID = (Integer) params.get("UM_TENANT_ID");
-                prepStmt.setInt("UM_TENANT_ID", tenantID);
+                Object roleTenantValue = params.get("UM_ROLE_TENANT_ID");
+                Object userTenantValue = params.get("UM_USER_TENANT_ID");
+                Object tenantValue = params.get("UM_TENANT_ID");
+
+                if(roleTenantValue != null) {
+                    int roleTenantId = (Integer) roleTenantValue;
+                    prepStmt.setInt("UM_ROLE_TENANT_ID", roleTenantId);
+                }
+                if(userTenantValue != null) {
+                    int userTenantId = (Integer) userTenantValue;
+                    prepStmt.setInt("UM_USER_TENANT_ID", userTenantId);
+                }
+                if (tenantValue != null) {
+                    int tenantId = (Integer) tenantValue;
+                    prepStmt.setInt("UM_TENANT_ID", tenantId);
+                }
                 prepStmt.remove();
             }
         } catch (MongoQueryException ex) {

@@ -32,10 +32,10 @@ public class MongoDBRealmConstants {
 	    public static final String ADD_ROLE = "AddRoleMONGO_QUERY";
 	    public static final String ADD_ROLE_TO_USER = "AddRoleToUserMONGO_QUERY";
 	    public static final String ADD_ROLE_PERMISSION = "AddRolePermissionMONGO_QUERY";
-        public static final String ADD_SHARED_ROLE_TO_USER="AddSharedRoleToUserMONGO_QUERY";
+        public static final String ADD_SHARED_ROLE_TO_USER ="AddSharedRoleToUserMONGO_QUERY";
 	    public static final String REMOVE_USER_FROM_ROLE = "RemoveUserFromRoleMONGO_QUERY";
 	    public static final String REMOVE_ROLE_FROM_USER = "RemoveRoleFromUserMONGO_QUERY";
-        public static final String REMOVE_USER_FROM_SHARED_ROLE="RemoveUserFromSharedRoleMONGO_QUERY";
+        public static final String REMOVE_USER_FROM_SHARED_ROLE ="RemoveUserFromSharedRoleMONGO_QUERY";
 	    public static final String DELETE_ROLE = "DeleteRoleMONGO_QUERY";
 	    public static final String ON_DELETE_ROLE_REMOVE_USER_ROLE = "OnDeleteRoleRemoveUserRoleMappingMONGO_QUERY";
 	    public static final String ON_DELETE_ROLE_DELETE_PERMISSION = "OnDeleteRoleRemovePermissionsMONGO_QUERY";
@@ -78,11 +78,11 @@ public class MongoDBRealmConstants {
 		public static final String GET_USERS_FOR_PROP_MONGO_QUERY = "{'collection' : 'UM_USER','$match' : {'UM_TENANT_ID' : '?','attribute.UM_ATTR_NAME' : '?','attribute.UM_ATTR_VALUE' : '?','attribute.UM_PROFILE_ID' : '?'},'$lookup' : {'from' : 'UM_USER_ATTRIBUTE','localField' : 'UM_ID','foreignField' : 'UM_USER_ID','as' : 'users'},'$unwind' : {'path' : '$users','preserveNullAndEmptyArrays' : false},'$project' : {'UM_USER_NAME' : '1'}}";
         public static final String GET_USERS_IN_SHARED_ROLE_MONGO_QUERY = "{'collection' : 'UM_SHARED_USER_ROLE','$match' : {'UM_ROLE_NAME' : '?','UM_USER_TENANT_ID' : 'user.UM_TENANT_ID','UM_ROLE_TENANT_ID' : 'role.UM_TENANT_ID'},'$lookup' : [{'from' : 'UM_USER','localField' : 'UM_USER_ID','foreignField' : 'UM_ID','as' : 'users'},{'from' : 'UM_ROLE','localField' : 'UM_ROLE_ID','foreignField' : 'UM_ID','as' : 'role'}],'$project' : {'UM_USER_NAME' : 1}}";
 	    public static final String ADD_USER_MONGO_QUERY = "{'collection' : 'UM_USER','UM_USER_NAME' : '?','UM_USER_PASSWORD' : '?','UM_SALT_VALUE' : '?','UM_REQUIRE_CHANGE' : '?','UM_CHANGED_TIME' : '?','UM_TENANT_ID' : '?','UM_ID' : '?'}";
-	    public static final String ADD_USER_TO_ROLE_MONGO_QUERY = "{'collection' : 'UM_USER_ROLE','UM_USER_ID' : '?','UM_ROLE_ID' : '?','UM_TENANT_ID' : '?'}";
+	    public static final String ADD_USER_TO_ROLE_MONGO_QUERY = "{'collection' : 'UM_USER_ROLE','UM_USER_ID' : '?','UM_ROLE_ID' : '?','UM_TENANT_ID' : '?','UM_ID' : '?'}";
 	    public static final String ADD_USER_TO_ROLE_MONGO_QUERY_CONDITION1 = "{'collection' : 'UM_USER','UM_USER_NAME' : '?','UM_TENANT_ID' : '?','projection' : {'UM_ID' : '1'}}";
 	    public static final String ADD_USER_TO_ROLE_MONGO_QUERY_CONDITION2	= "{'collection' : 'UM_ROLE','UM_ROLE_NAME' : '?','UM_TENANT_ID' : '?','projection' : {'UM_ID' : '1'}}";
 	    public static final String ADD_USER_PERMISSION_MONGO_QUERY = "AddUserPermission";
-	    public static final String ADD_ROLE_MONGO_QUERY = "{'collection' : 'UM_ROLE','UM_ROLE_NAME' : '?','UM_TENANT_ID' : '?','UM_ID' : '?',''UM_SHARED_ROLE' : '?'}";
+	    public static final String ADD_ROLE_MONGO_QUERY = "{'collection' : 'UM_ROLE','UM_ROLE_NAME' : '?','UM_TENANT_ID' : '?','UM_ID' : '?','UM_SHARED_ROLE' : '?'}";
 	    public static final String ADD_ROLE_TO_USER_MONGO_QUERY = "{'collection' : 'UM_USER_ROLE','UM_ROLE_ID' : '?','UM_USER_ID' : '?','UM_TENANT_ID' : '?','UM_ID' : '?'}";
 	    public static final String ADD_ROLE_PERMISSION_MONGO_QUERY = "AddRolePermissionMONGO_QUERY";
 	    public static final String REMOVE_USER_FROM_ROLE_MONGO_QUERY = "{'collection' : 'UM_USER_ROLE','UM_USER_ID' : '?','UM_ROLE_ID' : '?','UM_TENANT_ID' : '?'}";

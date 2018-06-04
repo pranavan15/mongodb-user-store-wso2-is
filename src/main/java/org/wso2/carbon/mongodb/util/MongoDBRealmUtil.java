@@ -3,6 +3,7 @@ package org.wso2.carbon.mongodb.util;
 import java.util.Map;
 
 import org.wso2.carbon.mongodb.userstoremanager.MongoDBRealmConstants;
+import org.wso2.carbon.mongodb.userstoremanager.caseinsensitive.MongoDBCaseInsensitiveConstants;
 
 /**
  * MongoDBRealmUtil loads all the default user store properties for configurations
@@ -181,7 +182,77 @@ public class MongoDBRealmUtil {
                     MongoDBRealmConstants.ADD_SHARED_ROLE_MONGO_QUERY);
         }
         if (properties.containsKey(MongoDBRealmConstants.GET_USERS_IN_SHARED_ROLE)) {
-            properties.put(MongoDBRealmConstants.GET_USERS_IN_SHARED_ROLE, MongoDBRealmConstants.GET_USERS_IN_SHARED_ROLE_MONGO_QUERY);
+            properties.put(MongoDBRealmConstants.GET_USERS_IN_SHARED_ROLE,
+                    MongoDBRealmConstants.GET_USERS_IN_SHARED_ROLE_MONGO_QUERY);
+        }
+        if (!properties.containsKey(MongoDBRealmConstants.GET_USERS_FOR_PROP)) {
+            properties.put(MongoDBRealmConstants.GET_USERS_FOR_PROP,
+                    MongoDBRealmConstants.GET_USERS_FOR_PROP_MONGO_QUERY);
+        }
+
+        if (!properties.containsKey(MongoDBCaseInsensitiveConstants.GET_IS_USER_EXISTING_CASE_INSENSITIVE)) {
+            properties.put(MongoDBCaseInsensitiveConstants.GET_IS_USER_EXISTING_CASE_INSENSITIVE,
+                    MongoDBCaseInsensitiveConstants.GET_IS_USER_EXISTING_MONGO_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(MongoDBCaseInsensitiveConstants.UPDATE_USER_PASSWORD_CASE_INSENSITIVE)) {
+            properties.put(MongoDBCaseInsensitiveConstants.UPDATE_USER_PASSWORD_CASE_INSENSITIVE,
+                    MongoDBCaseInsensitiveConstants.UPDATE_USER_PASSWORD_MONGO_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(MongoDBCaseInsensitiveConstants.SELECT_USER_CASE_INSENSITIVE)) {
+            properties.put(MongoDBCaseInsensitiveConstants.SELECT_USER_CASE_INSENSITIVE,
+                    MongoDBCaseInsensitiveConstants.SELECT_USER_MONGO_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(MongoDBCaseInsensitiveConstants.UPDATE_USER_PROPERTY_CASE_INSENSITIVE)) {
+            properties.put(MongoDBCaseInsensitiveConstants.UPDATE_USER_PROPERTY_CASE_INSENSITIVE,
+                    MongoDBCaseInsensitiveConstants.UPDATE_USER_PROPERTY_MONGO_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(MongoDBCaseInsensitiveConstants.DELETE_USER_PROPERTY_CASE_INSENSITIVE)) {
+            properties.put(MongoDBCaseInsensitiveConstants.DELETE_USER_PROPERTY_CASE_INSENSITIVE,
+                    MongoDBCaseInsensitiveConstants.DELETE_USER_PROPERTY_MONGO_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(MongoDBCaseInsensitiveConstants.REMOVE_USER_FROM_SHARED_ROLE_CASE_INSENSITIVE)) {
+            properties.put(MongoDBCaseInsensitiveConstants.REMOVE_USER_FROM_SHARED_ROLE_CASE_INSENSITIVE,
+                    MongoDBCaseInsensitiveConstants.REMOVE_USER_FROM_SHARED_ROLE_MONGO_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(MongoDBCaseInsensitiveConstants.REMOVE_USER_FROM_ROLE_CASE_INSENSITIVE)) {
+            properties.put(MongoDBCaseInsensitiveConstants.REMOVE_USER_FROM_ROLE_CASE_INSENSITIVE,
+                    MongoDBCaseInsensitiveConstants.REMOVE_USER_FROM_ROLE_MONGO_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(MongoDBCaseInsensitiveConstants.REMOVE_ROLE_FROM_USER_CASE_INSENSITIVE)) {
+            properties.put(MongoDBCaseInsensitiveConstants.REMOVE_ROLE_FROM_USER_CASE_INSENSITIVE,
+                    MongoDBCaseInsensitiveConstants.REMOVE_ROLE_FROM_USER_MONGO_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(MongoDBCaseInsensitiveConstants.ADD_ROLE_TO_USER_CASE_INSENSITIVE)) {
+            properties.put(MongoDBCaseInsensitiveConstants.ADD_ROLE_TO_USER_CASE_INSENSITIVE,
+                    MongoDBCaseInsensitiveConstants.ADD_ROLE_TO_USER_MONGO_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(MongoDBCaseInsensitiveConstants.GET_USER_ROLE_CASE_INSENSITIVE)) {
+            properties.put(MongoDBCaseInsensitiveConstants.GET_USER_ROLE_CASE_INSENSITIVE,
+                    MongoDBCaseInsensitiveConstants.GET_USER_ROLE_MONGO_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(MongoDBCaseInsensitiveConstants.ADD_USER_TO_ROLE_CASE_INSENSITIVE)) {
+            properties.put(MongoDBCaseInsensitiveConstants.ADD_USER_TO_ROLE_CASE_INSENSITIVE,
+                    MongoDBCaseInsensitiveConstants.ADD_USER_TO_ROLE_MONGO_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(MongoDBCaseInsensitiveConstants.ADD_SHARED_ROLE_TO_USER_CASE_INSENSITIVE)) {
+            properties.put(MongoDBCaseInsensitiveConstants.ADD_SHARED_ROLE_TO_USER_CASE_INSENSITIVE,
+                    MongoDBCaseInsensitiveConstants.ADD_SHARED_ROLE_TO_USER_MONGO_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(MongoDBCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE)) {
+            properties.put(MongoDBCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE,
+                    MongoDBCaseInsensitiveConstants.GET_USER_FILTER_MONGO_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(MongoDBCaseInsensitiveConstants.GET_PROFILE_NAMES_FOR_USER_CASE_INSENSITIVE)) {
+            properties.put(MongoDBCaseInsensitiveConstants.GET_PROFILE_NAMES_FOR_USER_CASE_INSENSITIVE,
+                    MongoDBCaseInsensitiveConstants.GET_PROFILE_NAMES_FOR_USER_MONGO_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(MongoDBCaseInsensitiveConstants.GET_USERID_FROM_USERNAME_CASE_INSENSITIVE)) {
+            properties.put(MongoDBCaseInsensitiveConstants.GET_USERID_FROM_USERNAME_CASE_INSENSITIVE,
+                    MongoDBCaseInsensitiveConstants.GET_USERID_FROM_USERNAME_MONGO_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(MongoDBCaseInsensitiveConstants.GET_TENANT_ID_FROM_USERNAME_CASE_INSENSITIVE)) {
+            properties.put(MongoDBCaseInsensitiveConstants.GET_TENANT_ID_FROM_USERNAME_CASE_INSENSITIVE,
+                    MongoDBCaseInsensitiveConstants.GET_TENANT_ID_FROM_USERNAME_MONGO_CASE_INSENSITIVE);
         }
         return properties;
     }
