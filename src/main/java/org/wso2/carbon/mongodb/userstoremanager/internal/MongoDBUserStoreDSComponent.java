@@ -24,43 +24,54 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.mongodb.userstoremanager.MongoDBUserStoreManager;
 import org.wso2.carbon.user.api.UserStoreManager;
-import org.wso2.carbon.user.core.common.DefaultRealmService;
-import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
+import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
+import org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager;
+import org.wso2.carbon.user.core.ldap.ReadOnlyLDAPUserStoreManager;
+import org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager;
 import org.wso2.carbon.user.core.tracker.UserStoreManagerRegistry;
-import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-
 /**
- * @scr.component name="mongodb.userstoremanager.dscomponent" immediate=true
+ * @scr.component name="mongodb.userstoremanager.dscomponent" immediate=true inherit=false
  */
-@SuppressWarnings({"unused", "JavaDoc"})
-public class MongoDBUserStoreDSComponent {
+@SuppressWarnings({"unused"})
+public class MongoDBUserStoreDSComponent extends UserStoreMgtDSComponent {
 
     private static final Log log = LogFactory.getLog(MongoDBUserStoreDSComponent.class);
 
-    protected void activate(ComponentContext ctxt) throws Exception {
+    protected void activate(ComponentContext ctxt) {
 
-        PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
-                .getThreadLocalCarbonContext();
-        carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
-        carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+        try {
+            // We assume this component gets activated by super tenant
+            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
+                    .getThreadLocalCarbonContext();
+            carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
+            carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
-        UserStoreManager mongoUserStoreManager = new MongoDBUserStoreManager();
-        ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), mongoUserStoreManager, null);
+            UserStoreManager jdbcUserStoreManager = new JDBCUserStoreManager();
+            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), jdbcUserStoreManager, null);
 
-        UserStoreManagerRegistry.init(ctxt.getBundleContext());
+            UserStoreManager readWriteLDAPUserStoreManager = new ReadWriteLDAPUserStoreManager();
+            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), readWriteLDAPUserStoreManager,
+                    null);
 
-        RealmService service = new DefaultRealmService(ctxt.getBundleContext());
-        MongoDBUserStoreManager.setDBDataSource(DatabaseUtil.getRealmDataSource(service.getBootstrapRealmConfiguration()));
-        log.info("MongoDB User Store bundle activated successfully..");
-    }
+            UserStoreManager readOnlyLDAPUserStoreManager = new ReadOnlyLDAPUserStoreManager();
+            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), readOnlyLDAPUserStoreManager,
+                    null);
 
-    @SuppressWarnings({"RedundantThrows", "UnusedParameters"})
-    protected void deactivate(ComponentContext cc) throws Exception {
-        System.out.println("MongoDB Bundle Shutting down");
-        if (log.isDebugEnabled()) {
-            log.debug("MongoDB User Store Manager is deactivated ");
+            UserStoreManager activeDirectoryUserStoreManager = new ActiveDirectoryUserStoreManager();
+            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), activeDirectoryUserStoreManager,
+                    null);
+
+            UserStoreManager mongoUserStoreManager = new MongoDBUserStoreManager();
+            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), mongoUserStoreManager, null);
+
+            UserStoreManagerRegistry.init(ctxt.getBundleContext());
+
+            log.info("Carbon UserStoreMgtDSComponent activated successfully.");
+        } catch (Exception e) {
+            log.error("Failed to activate Carbon UserStoreMgtDSComponent ", e);
         }
     }
 
