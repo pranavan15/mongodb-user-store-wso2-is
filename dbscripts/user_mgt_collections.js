@@ -425,4 +425,3 @@ db.UM_HYBRID_REMEMBER_ME.insert({
    UM_TENANT_ID: 0
 });
 db.UM_HYBRID_REMEMBER_ME.createIndex({UM_ID: 16,UM_TENANT_ID: 16},{unique: true});
-
