@@ -272,6 +272,10 @@ public class MongoDBRealmUtil {
             properties.put(MongoDBCaseInsensitiveConstants.GET_TENANT_ID_FROM_USERNAME_CASE_INSENSITIVE,
                     MongoDBCaseInsensitiveConstants.GET_TENANT_ID_FROM_USERNAME_MONGO_CASE_INSENSITIVE);
         }
+        if (!properties.containsKey(MongoDBCaseInsensitiveConstants.ON_DELETE_USER_REMOVE_USER_ROLE_CASE_INSENSITIVE)) {
+            properties.put(MongoDBCaseInsensitiveConstants.ON_DELETE_USER_REMOVE_USER_ROLE_CASE_INSENSITIVE,
+                    MongoDBCaseInsensitiveConstants.ON_DELETE_USER_REMOVE_USER_ROLE_MONGO_CASE_INSENSITIVE);
+        }
         return properties;
     }
 }

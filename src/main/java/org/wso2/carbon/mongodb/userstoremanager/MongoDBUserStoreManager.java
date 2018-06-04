@@ -952,7 +952,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
 
             if (log.isDebugEnabled()) {
 
-                log.debug("Error ocurred :" + e.getMessage());
+                log.debug("Error occurred :" + e.getMessage());
             }
             throw new UserStoreException(e.getMessage());
         }
