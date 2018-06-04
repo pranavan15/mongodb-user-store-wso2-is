@@ -49,10 +49,11 @@ Now you have successfully added the mongoDB user store extension to the product-
 
 ### Configuring MongoDB as the Primary User Store
 
-The above configurations are good enough for you to use the MongoDB as a secondary user store manager. However, in order to use the MongoDB as the primary user store of product-IS you require some additional configurations. 
+The above configurations are good enough for you to use the MongoDB as a secondary user store manager. However, in order to use the MongoDB as the primary user store of product-IS you require some additional configurations as follow. 
 
-After following steps 1-7, prior to start the IS server, add the following in the `user-mgt.xml` file of product-IS. You can find this file inside `/repository/conf` folder. 
+9. After following steps 1-7, prior to start the IS server, add the following in the `user-mgt.xml` file of product-IS. You can find this file inside `/repository/conf` folder. 
 
+##### user-mgt.xml
 ```xml
    <UserStoreManager class="org.wso2.carbon.mongodb.userstoremanager.MongoDBUserStoreManager">
 	<Property name="TenantManager">org.wso2.carbon.user.core.tenant.JDBCTenantManager</Property>
@@ -83,3 +84,12 @@ After following steps 1-7, prior to start the IS server, add the following in th
 	<Property name="Make Username Unique Across Tenants">false</Property>
    </UserStoreManager>
 ```
+
+10. Comment the existing primary user store xml configurations in `user-mgt.xml` and save the file.
+
+11. Now, open a terminal, navigate to the `bin` folder of product-IS and start the IS server by executing the following command
+```bash
+   ./wso2server.sh
+```
+
+This will start the IS server with MongoDB as the primary user store. Hence, all your user management related tasks will be stored in MongoDB by default.
