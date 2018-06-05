@@ -1,32 +1,18 @@
 // Function to handle auto-increment IDs
 db.system.js.save(
-
-   {
-
-     _id: "getNextSequence",
-
-     value : function(name) { 
-
-        var ret = db.COUNTERS.findAndModify(
-
-          {
-
-            query: { _id: name },
-
-            update: { $inc: { seq: 1 } },
-
-            new: true
-
-          }
-
-        );
-
-        return ret.seq;
-
-     }
-
-   }
-
+    {
+        _id: "getNextSequence",
+        value : function(name) {
+            var ret = db.COUNTERS.findAndModify(
+                {
+                    query: { _id: name },
+                    update: { $inc: { seq: 1 } },
+                    new: true
+                }
+            );
+            return ret.seq;
+        }
+    }
 );
 
 // Above function will be stored in the system.js script
@@ -244,8 +230,7 @@ db.UM_ACCOUNT_MAPPING.insert({
     UM_ACC_LINK_ID: 0
 });
 db.UM_ACCOUNT_MAPPING.createIndex({UM_ID: 16},{unique: true});
-db.UM_ACCOUNT_MAPPING.createIndex({UM_USER_NAME: 5,UM_TENANT_ID: 16,UM_USER_STORE_DOMAIN: 5,UM_ACC_LINK_ID: 16},
-{unique: true});
+db.UM_ACCOUNT_MAPPING.createIndex({UM_USER_NAME: 5,UM_TENANT_ID: 16,UM_USER_STORE_DOMAIN: 5,UM_ACC_LINK_ID: 16},{unique: true});
 
 
 db.COUNTERS.insert({
