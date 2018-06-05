@@ -20,7 +20,9 @@ db.system.js.save(
 db.loadServerScripts();
 
 
-// User management related collections
+// #####################################
+//  USER MANAGEMENT RELATED COLLECTIONS
+// #####################################
 
 db.COUNTERS.insert({
 
