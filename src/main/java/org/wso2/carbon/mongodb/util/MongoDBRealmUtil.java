@@ -72,9 +72,9 @@ public class MongoDBRealmUtil {
             properties.put(MongoDBRealmConstants.GET_PROFILE_NAMES_FOR_USER,
                     MongoDBRealmConstants.GET_PROFILE_NAMES_FOR_USER_MONGO_QUERY);
         }
-        if (!properties.containsKey(MongoDBRealmConstants.GET_USERID_FROM_USERNAME)) {
-            properties.put(MongoDBRealmConstants.GET_USERID_FROM_USERNAME,
-                    MongoDBRealmConstants.GET_USERID_FROM_USERNAME_MONGO_QUERY);
+        if (!properties.containsKey(MongoDBRealmConstants.GET_USER_ID_FROM_USERNAME)) {
+            properties.put(MongoDBRealmConstants.GET_USER_ID_FROM_USERNAME,
+                    MongoDBRealmConstants.GET_USER_ID_FROM_USERNAME_MONGO_QUERY);
         }
         if (!properties.containsKey(MongoDBRealmConstants.GET_TENANT_ID_FROM_USERNAME)) {
             properties.put(MongoDBRealmConstants.GET_TENANT_ID_FROM_USERNAME,

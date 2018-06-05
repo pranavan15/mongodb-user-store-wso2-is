@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-
 import com.mongodb.DBRef;
 import com.mongodb.WriteResult;
 import com.mongodb.DBCursor;
@@ -30,6 +29,7 @@ import com.mongodb.AggregationOutput;
 import com.mongodb.WriteConcern;
 import com.mongodb.DBEncoder;
 import com.mongodb.BulkWriteResult;
+
 import org.bson.types.BSONTimestamp;
 import org.bson.types.Binary;
 import org.bson.types.Symbol;
@@ -38,7 +38,6 @@ import org.wso2.carbon.user.api.UserStoreException;
 /**
  * MongoDB Prepared Statement Interface
  */
-@SuppressWarnings({"unused", "UnusedReturnValue"})
 public interface MongoPreparedStatement {
 
     /**
@@ -213,7 +212,8 @@ public interface MongoPreparedStatement {
      * @return WriteResult instance
      * @throws MongoQueryException if any exception occurred
      */
-    WriteResult update(boolean upsert, boolean multi, WriteConcern aWriteConcern, DBEncoder encoder) throws MongoQueryException;
+    WriteResult update(boolean upsert, boolean multi, WriteConcern aWriteConcern, DBEncoder encoder)
+            throws MongoQueryException;
 
     /**
      * update document to mongodb
@@ -226,7 +226,8 @@ public interface MongoPreparedStatement {
      * @return WriteResult instance
      * @throws MongoQueryException if any exception occurred
      */
-    WriteResult update(boolean upsert, boolean multi, WriteConcern aWriteConcern, boolean byPassDocumentValidation, DBEncoder encoder) throws MongoQueryException;
+    WriteResult update(boolean upsert, boolean multi, WriteConcern aWriteConcern, boolean byPassDocumentValidation,
+                       DBEncoder encoder) throws MongoQueryException;
 
     /**
      * update multiple documents mongodb

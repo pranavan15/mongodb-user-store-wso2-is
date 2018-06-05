@@ -41,10 +41,12 @@ import com.mongodb.DBObject;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.MongoException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.types.BSONTimestamp;
 import org.json.JSONObject;
+
 import org.wso2.carbon.mongodb.query.MongoPreparedStatement;
 import org.wso2.carbon.mongodb.query.MongoPreparedStatementImpl;
 import org.wso2.carbon.mongodb.query.MongoQueryException;
@@ -57,7 +59,6 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 /**
  * MongoDB database operations
  */
-@SuppressWarnings({"deprecation", "WeakerAccess", "unused"})
 public class MongoDatabaseUtil {
 
     private static final Log log = LogFactory.getLog(DatabaseUtil.class);
@@ -68,13 +69,12 @@ public class MongoDatabaseUtil {
     private static DB dataSource = null;
 
     /**
-     * return the realm datasource of user store
+     * return the realm data source of user store
      *
      * @param realmConfiguration of user store
      * @return DB connection
      */
     public static synchronized DB getRealmDataSource(RealmConfiguration realmConfiguration) {
-
         if (dataSource == null) {
             return createRealmDataSource(realmConfiguration);
         } else {
@@ -88,7 +88,7 @@ public class MongoDatabaseUtil {
      */
     public static DB createRealmDataSource(RealmConfiguration realmConfiguration) {
         // TODO Auto-generated method stub
-        List<ServerAddress> seeds = new ArrayList<ServerAddress>();
+        List<ServerAddress> seeds = new ArrayList<>();
         char[] pass;
         int port;
         if (realmConfiguration.getUserStoreProperty(MongoDBRealmConstants.PASSWORD) != null) {
@@ -96,10 +96,9 @@ public class MongoDatabaseUtil {
         } else {
             pass = "admin".toCharArray();
         }
-        List<MongoCredential> credentials = new ArrayList<MongoCredential>();
+        List<MongoCredential> credentials = new ArrayList<>();
         String userName;
         if (realmConfiguration.getUserStoreProperty(MongoDBRealmConstants.USER_NAME) != null) {
-
             userName = realmConfiguration.getUserStoreProperty(MongoDBRealmConstants.USER_NAME);
         } else {
             userName = "admin";
@@ -129,7 +128,8 @@ public class MongoDatabaseUtil {
      * @return int value
      * @throws UserStoreException if any error occurred
      */
-    public static int getIntegerValueFromDatabase(DB dbConnection, String stmt, Map<String, Object> params) throws UserStoreException {
+    public static int getIntegerValueFromDatabase(DB dbConnection, String stmt, Map<String, Object> params)
+            throws UserStoreException {
 
         MongoPreparedStatement prepStmt = null;
         int value = -1;
@@ -177,7 +177,8 @@ public class MongoDatabaseUtil {
      * @param stmt         query to execute in mongodb
      * @throws UserStoreException if any error occurred
      */
-    public static void updateUserRoleMappingInBatchMode(DB dbConnection, String stmt, Map<String, Object> params) throws UserStoreException {
+    public static void updateUserRoleMappingInBatchMode(DB dbConnection, String stmt, Map<String, Object> params)
+            throws UserStoreException {
 
         MongoPreparedStatement prepStmt = null;
         boolean localConnection = false;
@@ -197,7 +198,6 @@ public class MongoDatabaseUtil {
                             if (entry.getValue() == null) {
                                 throw new UserStoreException("Null data provided");
                             } else if (entry.getValue() instanceof int[]) {
-
                                 values = (int[]) entry.getValue();
                                 batchParamIndex = 1;
                                 listKey = key;
@@ -238,7 +238,6 @@ public class MongoDatabaseUtil {
                         + batchParamIndex);
             }
         } catch (MongoQueryException ex) {
-
             log.error(ex.getMessage(), ex);
             log.error("Using json : " + stmt);
             throw new UserStoreException(ex.getMessage(), ex);
@@ -252,21 +251,21 @@ public class MongoDatabaseUtil {
 
 
     /**
-     * delete user role in batch mode
+     * Delete user role in batch mode
      *
      * @param dbConnection of user store
      * @param params       values to filter from database
      * @param stmt         query to execute in mongodb
      * @throws UserStoreException if any error occurred
      */
-    public static void deleteUserRoleMappingInBatchMode(DB dbConnection, String stmt, Map<String, Object> params) throws UserStoreException {
+    public static void deleteUserRoleMappingInBatchMode(DB dbConnection, String stmt, Map<String, Object> params)
+            throws UserStoreException {
 
         MongoPreparedStatement prepStmt = null;
         boolean localConnection = false;
         try {
             int[] roleIDS = (int[]) params.get("UM_ROLE_ID");
             for (int roleID : roleIDS) {
-
                 prepStmt = new MongoPreparedStatementImpl(dbConnection, stmt);
                 int userID = (Integer) params.get("UM_USER_ID");
                 prepStmt.setInt("UM_USER_ID", userID);
@@ -276,7 +275,6 @@ public class MongoDatabaseUtil {
                 prepStmt.remove();
             }
         } catch (MongoQueryException ex) {
-
             log.error(ex.getMessage(), ex);
             log.error("Using json : " + stmt);
             throw new UserStoreException(ex.getMessage(), ex);
@@ -296,14 +294,14 @@ public class MongoDatabaseUtil {
      * @param stmt         query to execute in mongodb
      * @throws UserStoreException if any error occurred
      */
-    public static void deleteUserMappingInBatchMode(DB dbConnection, String stmt, Map<String, Object> params) throws UserStoreException {
+    public static void deleteUserMappingInBatchMode(DB dbConnection, String stmt, Map<String, Object> params)
+            throws UserStoreException {
 
         MongoPreparedStatement prepStmt = null;
         boolean localConnection = false;
         try {
             int[] userIDS = (int[]) params.get("UM_USER_ID");
             for (int userID : userIDS) {
-
                 prepStmt = new MongoPreparedStatementImpl(dbConnection, stmt);
                 int roleID = (Integer) params.get("UM_ROLE_ID");
                 prepStmt.setInt("UM_USER_ID", userID);
@@ -327,7 +325,6 @@ public class MongoDatabaseUtil {
                 prepStmt.remove();
             }
         } catch (MongoQueryException ex) {
-
             log.error(ex.getMessage(), ex);
             log.error("Using json : " + stmt);
             throw new UserStoreException(ex.getMessage(), ex);
@@ -347,7 +344,8 @@ public class MongoDatabaseUtil {
      * @param stmt         query to execute in mongodb
      * @throws UserStoreException if any error occurred
      */
-    public static void updateDatabase(DB dbConnection, String stmt, Map<String, Object> params) throws UserStoreException {
+    public static void updateDatabase(DB dbConnection, String stmt, Map<String, Object> params)
+            throws UserStoreException {
 
         MongoPreparedStatement prepStmt = null;
         WriteResult result;
@@ -393,14 +391,15 @@ public class MongoDatabaseUtil {
     }
 
     /**
-     * delete values from database
+     * Delete values from database
      *
      * @param dbConnection of user store
      * @param params       values to filter from database
      * @param stmt         query to execute in mongodb
      * @throws UserStoreException if any error occurred
      */
-    public static void deleteFromDatabase(DB dbConnection, String stmt, Map<String, Object> params) throws UserStoreException {
+    public static void deleteFromDatabase(DB dbConnection, String stmt, Map<String, Object> params)
+            throws UserStoreException {
 
         MongoPreparedStatement prepStmt = null;
         WriteResult result;
@@ -466,10 +465,10 @@ public class MongoDatabaseUtil {
     public static List<String> getKeys(JSONObject stmt) {
 
         int index = 0;
-        List<String> keys = new ArrayList<String>();
-        Iterator<String> keysfind = stmt.keys();
-        while (keysfind.hasNext()) {
-            String key = keysfind.next();
+        List<String> keys = new ArrayList<>();
+        Iterator<String> keysFind = stmt.keys();
+        while (keysFind.hasNext()) {
+            String key = keysFind.next();
             keys.add(index, key);
             if (stmt.get(key) instanceof JSONObject) {
                 JSONObject value = stmt.getJSONObject(key);
@@ -609,7 +608,9 @@ public class MongoDatabaseUtil {
      * @param userName        given user name
      * @throws UserStoreException if any error occurred
      */
-    public static void updateUserRoleMappingWithExactParams(DB dbConnection, String mongoQuery, String[] sharedRoles, String userName, Integer[] tenantIds, int currentTenantId) throws UserStoreException {
+    public static void updateUserRoleMappingWithExactParams(DB dbConnection, String mongoQuery, String[] sharedRoles,
+                                                            String userName, Integer[] tenantIds, int currentTenantId)
+            throws UserStoreException {
 
         MongoPreparedStatement ps = null;
         boolean localConnection = false;
@@ -657,21 +658,21 @@ public class MongoDatabaseUtil {
      * @param dbConnection   of user store
      * @param params         values to filter from database
      * @param mongoQuery     query to execute in mongodb
-     * @param isAggregrate   status
+     * @param isAggregate   status
      * @param multipleLookUp status
      * @throws UserStoreException if any error occurred
      */
-    public static String[] getStringValuesFromDatabase(DB dbConnection, String mongoQuery, Map<String, Object> params, boolean isAggregrate, boolean multipleLookUp) throws UserStoreException {
+    public static String[] getStringValuesFromDatabase(DB dbConnection, String mongoQuery, Map<String, Object> params,
+                                                       boolean isAggregate, boolean multipleLookUp)
+            throws UserStoreException {
 
         MongoPreparedStatement prepStmt = null;
         String[] values = new String[0];
         JSONObject jsonKeys = new JSONObject(mongoQuery);
         List<String> keys;
-        if (isAggregrate) {
-
+        if (isAggregate) {
             keys = getKeys(jsonKeys.getJSONObject("$match"));
         } else {
-
             keys = getKeys(jsonKeys);
         }
         try {
@@ -693,9 +694,9 @@ public class MongoDatabaseUtil {
                     }
                 }
             }
-            if (!isAggregrate) {
+            if (!isAggregate) {
                 DBCursor cursor = prepStmt.find();
-                List<String> lst = new ArrayList<String>();
+                List<String> lst = new ArrayList<>();
                 while (cursor.hasNext()) {
                     lst.add(cursor.next().toString());
                 }
@@ -706,20 +707,17 @@ public class MongoDatabaseUtil {
                 prepStmt.multiLookUp(multipleLookUp);
                 AggregationOutput result = prepStmt.aggregate();
                 Iterable<DBObject> ite = result.results();
-                List<String> lst = new ArrayList<String>();
+                List<String> lst = new ArrayList<>();
                 Iterator<DBObject> foundResults = ite.iterator();
                 List<String> projection = getKeys(jsonKeys.getJSONObject("$project"));
                 String projectionKey = "";
                 for (String pkey : projection) {
-
                     if (pkey.equals("_id")) {
-
                         continue;
                     }
                     projectionKey = pkey;
                 }
                 while (foundResults.hasNext()) {
-
                     lst.add(foundResults.next().get(projectionKey).toString());
                 }
                 if (lst.size() > 0) {
@@ -743,7 +741,9 @@ public class MongoDatabaseUtil {
         }
     }
 
-    public static void udpateUserRoleMappingInBatchModeForInternalRoles(DB dbConnection, String mongoStmt, String primaryDomain, Object... params) throws UserStoreException {
+    public static void updateUserRoleMappingInBatchModeForInternalRoles(DB dbConnection, String mongoStmt,
+                                                                        String primaryDomain, Object... params)
+            throws UserStoreException {
 
         MongoPreparedStatement prepStmt = null;
         boolean localConnection = false;
@@ -772,18 +772,18 @@ public class MongoDatabaseUtil {
                 int i = 0;
                 for (String value : values) {
                     String strParam = value;
-                    //add domain if not set
+                    // Add domain if not set
                     strParam = UserCoreUtil.addDomainToName(strParam, primaryDomain);
-                    //get domain from name
+                    // Get domain from name
                     String domainParam = UserCoreUtil.extractDomainFromName(strParam);
                     if (domainParam != null) {
                         domainParam = domainParam.toUpperCase();
                     }
-                    //set domain to mongodb
+                    // Set domain to mongodb
                     prepStmt.setString(keys.get(params.length + 1), domainParam);
-                    //remove domain before persisting
+                    // Remove domain before persisting
                     String nameWithoutDomain = UserCoreUtil.removeDomainFromName(strParam);
-                    //set name in mongodb
+                    // Set name in mongodb
                     prepStmt.setString(keys.get(batchParamIndex + 1), nameWithoutDomain);
                     WriteResult result = prepStmt.update();
                     count[i] = result.getN();
@@ -808,8 +808,8 @@ public class MongoDatabaseUtil {
         }
     }
 
-    public static String[] getStringValuesFromDatabaseForInternalRoles(DB dbConnection, String mongoStmt, Object... params) throws UserStoreException {
-
+    public static String[] getStringValuesFromDatabaseForInternalRoles(DB dbConnection, String mongoStmt,
+                                                                       Object... params) throws UserStoreException {
         String[] values = new String[0];
         MongoPreparedStatement prepStmt;
         DBCursor cursor;
@@ -830,7 +830,7 @@ public class MongoDatabaseUtil {
                 }
             }
             cursor = prepStmt.find();
-            List<String> lst = new ArrayList<String>();
+            List<String> lst = new ArrayList<>();
             while (cursor.hasNext()) {
                 String name = cursor.next().get(keys.get(1)).toString();
                 String domain = cursor.next().get(keys.get(2)).toString();
@@ -863,7 +863,8 @@ public class MongoDatabaseUtil {
      * @param mongoStmt    query to execute in mongodb
      * @throws UserStoreException if any error occurred
      */
-    public static void udpateUserRoleMappingInBatchMode(DB dbConnection, String mongoStmt, Object... params) throws UserStoreException {
+    public static void updateUserRoleMappingInBatchMode(DB dbConnection, String mongoStmt, Object... params)
+            throws UserStoreException {
 
         MongoPreparedStatement prepStmt = null;
         boolean localConnection = false;
@@ -931,7 +932,6 @@ public class MongoDatabaseUtil {
         int seq = 0;
         boolean isEmpty = true;
         while (cursor.hasNext()) {
-
             double value = Double.parseDouble(cursor.next().get("seq").toString());
             seq = (int) value;
             isEmpty = false;
@@ -939,8 +939,8 @@ public class MongoDatabaseUtil {
         if (isEmpty) {
             collect.insert(new BasicDBObject("name", collection).append("seq", ++seq));
         } else {
-
-            collect.update(new BasicDBObject("name", collection), new BasicDBObject("$set", new BasicDBObject("seq", ++seq)));
+            collect.update(new BasicDBObject("name", collection), new BasicDBObject("$set",
+                    new BasicDBObject("seq", ++seq)));
         }
         return seq;
     }
@@ -953,7 +953,8 @@ public class MongoDatabaseUtil {
      * @param params       to filter from database
      * @return String[] distinct string values
      */
-    public static String[] getDistinctStringValuesFromDatabase(DB dbConnection, String mongoQuery, Map<String, Object> params) throws UserStoreException {
+    public static String[] getDistinctStringValuesFromDatabase(DB dbConnection, String mongoQuery, Map<String,
+            Object> params) throws UserStoreException {
 
         MongoPreparedStatement prepStmt = null;
         String[] values = new String[0];

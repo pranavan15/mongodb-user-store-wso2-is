@@ -88,7 +88,7 @@ public class MongoDBUserStoreConstants {
 
         // Set advanced properties
         setAdvancedProperty(UserStoreConfigConstants.SCIMEnabled, "false");
-        setAdvancedProperty("BulkImportSupported", "false");
+        setAdvancedProperty("IsBulkImportSupported", "false");
         setAdvancedProperty("PasswordDigest", "SHA-256");
         setAdvancedProperty(MULTI_ATTRIBUTE_SEPARATOR, ",");
         setAdvancedProperty("StoreSaltedPassword", "true");

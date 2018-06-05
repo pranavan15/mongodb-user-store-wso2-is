@@ -24,12 +24,15 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.mongodb.userstoremanager.MongoDBUserStoreManager;
 import org.wso2.carbon.user.api.UserStoreManager;
+import org.wso2.carbon.user.core.common.DefaultRealmService;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ReadOnlyLDAPUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager;
+import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tracker.UserStoreManagerRegistry;
+import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 /**
@@ -81,6 +84,9 @@ public class MongoDBUserStoreDSComponent extends UserStoreMgtDSComponent {
 
             UserStoreManagerRegistry.init(ctxt.getBundleContext());
 
+            RealmService service = new DefaultRealmService(ctxt.getBundleContext());
+            MongoDBUserStoreManager.setDBDataSource(DatabaseUtil.getRealmDataSource(
+                    service.getBootstrapRealmConfiguration()));
             log.info("Carbon UserStoreMgtDSComponent activated successfully.");
         } catch (Exception e) {
             log.error("Failed to activate Carbon UserStoreMgtDSComponent ", e);
