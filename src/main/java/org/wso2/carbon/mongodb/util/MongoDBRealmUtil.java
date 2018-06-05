@@ -24,12 +24,13 @@ import org.wso2.carbon.mongodb.userstoremanager.MongoDBRealmConstants;
 import org.wso2.carbon.mongodb.userstoremanager.caseinsensitive.MongoDBCaseInsensitiveConstants;
 
 /**
- * MongoDBRealmUtil loads all the default user store properties for configurations
+ * Map default MongoDB User store properties if they are not configured in user-mgt.xml
  */
 public class MongoDBRealmUtil {
 
-    public static Map<String, String> getMONGO_QUERY(Map<String, String> properties) {
+    public static Map<String, String> getMongoQuery(Map<String, String> properties) {
 
+        // Realm properties
         if (!properties.containsKey(MongoDBRealmConstants.SELECT_USER)) {
             properties.put(MongoDBRealmConstants.SELECT_USER, MongoDBRealmConstants.SELECT_USER_MONGO_QUERY);
         }
@@ -208,6 +209,7 @@ public class MongoDBRealmUtil {
                     MongoDBRealmConstants.GET_USERS_FOR_PROP_MONGO_QUERY);
         }
 
+        // Case insensitive properties
         if (!properties.containsKey(MongoDBCaseInsensitiveConstants.GET_IS_USER_EXISTING_CASE_INSENSITIVE)) {
             properties.put(MongoDBCaseInsensitiveConstants.GET_IS_USER_EXISTING_CASE_INSENSITIVE,
                     MongoDBCaseInsensitiveConstants.GET_IS_USER_EXISTING_MONGO_CASE_INSENSITIVE);

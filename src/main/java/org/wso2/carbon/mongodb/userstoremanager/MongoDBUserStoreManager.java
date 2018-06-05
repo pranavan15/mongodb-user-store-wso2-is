@@ -114,7 +114,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     public MongoDBUserStoreManager(RealmConfiguration configuration, int tenantID) throws UserStoreException {
         this.realmConfig = configuration;
         this.tenantId = tenantID;
-        realmConfig.setUserStoreProperties(MongoDBRealmUtil.getMONGO_QUERY(realmConfig.getUserStoreProperties()));
+        realmConfig.setUserStoreProperties(MongoDBRealmUtil.getMongoQuery(realmConfig.getUserStoreProperties()));
         if (realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED) != null) {
             readGroupsEnabled = Boolean.parseBoolean(
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED));
@@ -151,7 +151,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         if (log.isDebugEnabled()) {
             log.debug("Started " + System.currentTimeMillis());
         }
-        realmConfig.setUserStoreProperties(MongoDBRealmUtil.getMONGO_QUERY(realmConfig
+        realmConfig.setUserStoreProperties(MongoDBRealmUtil.getMongoQuery(realmConfig
                 .getUserStoreProperties()));
         this.db = ds;
         this.dataSource = dataSourceLocal;
@@ -187,7 +187,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     public MongoDBUserStoreManager(DB ds, RealmConfiguration realmConfig) throws UserStoreException {
 
         this(realmConfig, MultitenantConstants.SUPER_TENANT_ID);
-        realmConfig.setUserStoreProperties(MongoDBRealmUtil.getMONGO_QUERY(realmConfig
+        realmConfig.setUserStoreProperties(MongoDBRealmUtil.getMongoQuery(realmConfig
                 .getUserStoreProperties()));
         this.db = ds;
     }
@@ -265,7 +265,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         properties.put(UserCoreConstants.DATA_SOURCE, dataSource);
 
 
-        realmConfig.setUserStoreProperties(MongoDBRealmUtil.getMONGO_QUERY(realmConfig
+        realmConfig.setUserStoreProperties(MongoDBRealmUtil.getMongoQuery(realmConfig
                 .getUserStoreProperties()));
 
         this.persistDomain();
