@@ -21,49 +21,39 @@ package org.wso2.carbon.mongodb.query;
 /**
  * MongoDB prepared statement exception class
  */
-@SuppressWarnings("unused")
 public class MongoQueryException extends Exception {
-
-    private static final long serialVersionUID = 1997753363232807009L;
-
 
     /**
      * Default Exception constructor
      */
     public MongoQueryException() {
-
     }
 
     /**
      * Exception constructor with exception message
      *
-     * @param message exception message
+     * @param message Exception message
      */
     public MongoQueryException(String message) {
-
         super(message);
     }
 
     /**
-     * Exception constructor with throwable reason
+     * Exception constructor with throwable cause
      *
-     * @param reason Throwable reason
+     * @param cause Throwable cause
      */
-    public MongoQueryException(Throwable reason) {
-
-        super(reason);
+    public MongoQueryException(Throwable cause) {
+        super(cause);
     }
 
     /**
-     * Exception constructor with throwable reason and message
+     * Exception constructor with throwable cause and message
      *
-     * @param message exception message
-     * @param reason  Throwable reason
+     * @param message Exception message
+     * @param cause  Throwable cause
      */
-    public MongoQueryException(String message, Throwable reason) {
-
-        super(message, reason);
+    public MongoQueryException(String message, Throwable cause) {
+        super(message, cause);
     }
-
-
 }
