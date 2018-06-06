@@ -26,7 +26,7 @@ import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 
 /**
- * MongoDB User Store properties Constants
+ * MongoDB default user store properties if they are not configured in user-mgt.xml
  */
 public class MongoDBUserStoreConstants {
 

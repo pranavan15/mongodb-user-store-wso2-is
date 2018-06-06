@@ -19,9 +19,10 @@
 package org.wso2.carbon.mongodb.userstoremanager.caseinsensitive;
 
 /**
- * case insensitive MongoDB queries
+ * Case insensitive MongoDB queries
  */
 public class MongoDBCaseInsensitiveConstants {
+
     public static final String SELECT_USER_CASE_INSENSITIVE = "SelectUserMongoCaseInsensitive";
     public static final String GET_USER_FILTER_CASE_INSENSITIVE = "UserFilterMongoCaseInsensitive";
     public static final String GET_USER_ROLE_CASE_INSENSITIVE = "UserRoleMongoCaseInsensitive";

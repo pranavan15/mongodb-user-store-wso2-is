@@ -24,11 +24,11 @@ import org.wso2.carbon.mongodb.userstoremanager.MongoDBRealmConstants;
 import org.wso2.carbon.mongodb.userstoremanager.caseinsensitive.MongoDBCaseInsensitiveConstants;
 
 /**
- * Map default MongoDB User store properties if they are not configured in user-mgt.xml
+ * Map default MongoDB User store queries if they are not configured in user-mgt.xml
  */
 public class MongoDBRealmUtil {
 
-    public static Map<String, String> getMongoQuery(Map<String, String> properties) {
+    public static Map<String, String> getMongo(Map<String, String> properties) {
 
         // Realm properties
         if (!properties.containsKey(MongoDBRealmConstants.SELECT_USER)) {

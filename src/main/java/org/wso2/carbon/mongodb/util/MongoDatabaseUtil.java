@@ -59,6 +59,7 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 /**
  * MongoDB database operations
  */
+@SuppressWarnings("unused")
 public class MongoDatabaseUtil {
 
     private static final Log log = LogFactory.getLog(DatabaseUtil.class);
@@ -86,8 +87,8 @@ public class MongoDatabaseUtil {
      * @param realmConfiguration of user store
      * @return DB connection
      */
+    @SuppressWarnings("deprecation")
     public static DB createRealmDataSource(RealmConfiguration realmConfiguration) {
-        // TODO Auto-generated method stub
         List<ServerAddress> seeds = new ArrayList<>();
         char[] pass;
         int port;
@@ -110,9 +111,7 @@ public class MongoDatabaseUtil {
             port = 27017;
         }
         seeds.add(new ServerAddress(realmConfiguration.getUserStoreProperty(MongoDBRealmConstants.URL), port));
-        credentials.add(
-                MongoCredential.createCredential(userName, "wso2_carbon_db", pass)
-        );
+        credentials.add(MongoCredential.createCredential(userName, "wso2_carbon_db", pass));
         MongoClient mongoClient = new MongoClient(seeds, credentials);
         mongoClient.setWriteConcern(WriteConcern.JOURNALED);
         dataSource = mongoClient.getDB("wso2_carbon_db");

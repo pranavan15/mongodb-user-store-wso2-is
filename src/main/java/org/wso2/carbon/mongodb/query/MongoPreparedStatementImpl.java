@@ -664,7 +664,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
     }
 
     /**
-     * Convert JSON Query to Aggregration Pipeline Object
+     * Convert JSON Query to Aggregation Pipeline Object
      *
      * @param stmt JSONObject
      */
