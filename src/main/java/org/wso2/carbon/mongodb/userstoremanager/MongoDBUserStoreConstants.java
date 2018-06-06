@@ -30,7 +30,7 @@ import org.wso2.carbon.user.core.UserStoreConfigConstants;
  */
 public class MongoDBUserStoreConstants {
 
-    // Properties for Read Active Directory User Store Manager
+    // Properties for User Store Manager
     public static final List<Property> MONGODB_UM_MANDATORY_PROPERTIES = new ArrayList<>();
     public static final List<Property> MONGODB_UM_OPTIONAL_PROPERTIES = new ArrayList<>();
     public static final List<Property> MONGODB_UM_ADVANCED_PROPERTIES = new ArrayList<>();
@@ -166,8 +166,8 @@ public class MongoDBUserStoreConstants {
                 MongoDBCaseInsensitiveConstants.GET_PROFILE_NAMES_FOR_USER_MONGO_CASE_INSENSITIVE);
         setAdvancedProperty("GetUserIDFromUserNameMONGO_QUERY", "{'collection' : 'UM_USER','UM_USER_NAME' : '?'," +
                 "'UM_TENANT_ID' : '?','projection' : {'UM_ID' : 1}}");
-        setAdvancedProperty(MongoDBCaseInsensitiveConstants.GET_USERID_FROM_USERNAME_CASE_INSENSITIVE,
-                MongoDBCaseInsensitiveConstants.GET_USERID_FROM_USERNAME_MONGO_CASE_INSENSITIVE);
+        setAdvancedProperty(MongoDBCaseInsensitiveConstants.GET_USER_ID_FROM_USERNAME_CASE_INSENSITIVE,
+                MongoDBCaseInsensitiveConstants.GET_USER_ID_FROM_USERNAME_MONGO_CASE_INSENSITIVE);
         setAdvancedProperty(MongoDBCaseInsensitiveConstants.ADD_ROLE_TO_USER_CASE_INSENSITIVE,
                 MongoDBCaseInsensitiveConstants.ADD_ROLE_TO_USER_MONGO_CASE_INSENSITIVE);
         setAdvancedProperty("GetUserNameFromTenantIDMONGO_QUERY", "{'collection' : 'UM_USER','UM_TENANT_ID' : '?'," +

@@ -31,7 +31,7 @@ public class MongoDBCaseInsensitiveConstants {
             "GetUserPropertiesForProfileMongoCaseInsensitive";
     public static final String GET_PROP_FOR_PROFILE_CASE_INSENSITIVE = "GetUserPropertyForProfileMongoCaseInsensitive";
     public static final String GET_PROFILE_NAMES_FOR_USER_CASE_INSENSITIVE = "GetUserProfileNamesMongoCaseInsensitive";
-    public static final String GET_USERID_FROM_USERNAME_CASE_INSENSITIVE = "GetUserIDFromUserNameMongoCaseInsensitive";
+    public static final String GET_USER_ID_FROM_USERNAME_CASE_INSENSITIVE = "GetUserIDFromUserNameMongoCaseInsensitive";
     public static final String GET_TENANT_ID_FROM_USERNAME_CASE_INSENSITIVE =
             "GetTenantIDFromUserNameMongoCaseInsensitive";
     public static final String ADD_USER_TO_ROLE_CASE_INSENSITIVE = "AddUserToRoleMongoCaseInsensitive";
@@ -84,7 +84,7 @@ public class MongoDBCaseInsensitiveConstants {
     public static final String GET_PROFILE_NAMES_FOR_USER_MONGO_CASE_INSENSITIVE = "{'collection' : " +
             "'UM_USER_ATTRIBUTE','UM_USER_ID' : '?','projection' : {'UM_PROFILE_ID' : 1,_id : 0},'distinct' : " +
             "'UM_PROFILE_ID'}";
-    public static final String GET_USERID_FROM_USERNAME_MONGO_CASE_INSENSITIVE =
+    public static final String GET_USER_ID_FROM_USERNAME_MONGO_CASE_INSENSITIVE =
             "{'collection' : 'UM_USER','UM_USER_NAME' : {'$regex' : '?','$options' : 'i'},'UM_TENANT_ID' : '?'}";
     public static final String GET_TENANT_ID_FROM_USERNAME_MONGO_CASE_INSENSITIVE = "{'collection' : 'UM_USER'," +
             "'UM_USER_NAME' : {'$regex' : '?','$option' : 'i'},'projection' : {'UM_TENANT_ID' : 1,_id : 0}}";

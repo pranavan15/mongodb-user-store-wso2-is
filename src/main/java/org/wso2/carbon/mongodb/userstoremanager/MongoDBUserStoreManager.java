@@ -1475,7 +1475,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             query = MongoDBRealmConstants.GET_USER_ID_FROM_USERNAME_MONGO_QUERY;
             mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.GET_USER_ROLE);
         } else {
-            query = MongoDBCaseInsensitiveConstants.GET_USERID_FROM_USERNAME_MONGO_CASE_INSENSITIVE;
+            query = MongoDBCaseInsensitiveConstants.GET_USER_ID_FROM_USERNAME_MONGO_CASE_INSENSITIVE;
             mongoQuery = realmConfig.getUserStoreProperty(
                     MongoDBCaseInsensitiveConstants.GET_USER_ROLE_CASE_INSENSITIVE);
         }
@@ -1795,7 +1795,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         if (isCaseSensitiveUsername()) {
             query = MongoDBRealmConstants.GET_USER_ID_FROM_USERNAME_MONGO_QUERY;
         } else {
-            query = MongoDBCaseInsensitiveConstants.GET_USERID_FROM_USERNAME_MONGO_CASE_INSENSITIVE;
+            query = MongoDBCaseInsensitiveConstants.GET_USER_ID_FROM_USERNAME_MONGO_CASE_INSENSITIVE;
         }
         int userID[] = new int[userList.length];
         int index = 0;
@@ -2402,7 +2402,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.GET_USER_ID_FROM_USERNAME);
         } else {
             mongoQuery = realmConfig.getUserStoreProperty(
-                    MongoDBCaseInsensitiveConstants.GET_USERID_FROM_USERNAME_CASE_INSENSITIVE);
+                    MongoDBCaseInsensitiveConstants.GET_USER_ID_FROM_USERNAME_CASE_INSENSITIVE);
         }
         if (mongoQuery == null) {
             throw new UserStoreException("The mongo statement for retrieving ID is null");
