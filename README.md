@@ -55,7 +55,7 @@ The above configurations are good enough for you to use the MongoDB as a seconda
 
 ##### user-mgt.xml
 ```xml
-    <UserStoreManager class="org.wso2.carbon.mongodb.userstoremanager.MongoDBUserStoreManager">
+    <UserStoreManager class="org.wso2.carbon.mongodb.user.store.mgt.MongoDBUserStoreManager">
     <Property name="TenantManager">org.wso2.carbon.user.core.tenant.JDBCTenantManager</Property>
     <Property name="ReadGroups">true</Property>
     <Property name="ReadOnly">false</Property>

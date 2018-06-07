@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.mongodb.userstoremanager;
+package org.wso2.carbon.mongodb.user.store.mgt;
 
 import java.security.SecureRandom;
 import java.security.NoSuchAlgorithmException;
@@ -57,7 +57,7 @@ import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
 
 import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.mongodb.userstoremanager.caseinsensitive.MongoDBCaseInsensitiveConstants;
+import org.wso2.carbon.mongodb.user.store.mgt.caseinsensitive.MongoDBCaseInsensitiveConstants;
 import org.wso2.carbon.mongodb.util.MongoDatabaseUtil;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -85,12 +85,9 @@ import org.wso2.carbon.mongodb.query.MongoQueryException;
  */
 public class MongoDBUserStoreManager extends AbstractUserStoreManager {
 
-    private final Log log = LogFactory.getLog(MongoDBUserStoreManager.class);
-
     private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
-    private static final String SHA_1_PRNG = "SHA1PRNG";
     private static DataSource dataSourceLocal = null;
-
+    private final Log log = LogFactory.getLog(MongoDBUserStoreManager.class);
     private DB db;
     private SecureRandom random = new SecureRandom();
 
@@ -273,6 +270,10 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         }
     }
 
+    public static void setDBDataSource(DataSource source) {
+        dataSourceLocal = source;
+    }
+
     /**
      * Get all user properties belong to provided user profile
      *
@@ -365,7 +366,6 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         return searchCtx;
     }
 
-
     /**
      * Check whether the role is exists in mongodb
      *
@@ -390,7 +390,6 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         }
         return isExisting;
     }
-
 
     protected boolean isValueExisting(String mongoQuery, DB db, Map<String, Object> params) throws UserStoreException {
 
@@ -692,17 +691,12 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     private String generateSaltValue() {
-        String saltValue;
-        try {
-            SecureRandom secureRandom = SecureRandom.getInstance(SHA_1_PRNG);
-            byte[] bytes = new byte[16];
-            // SecureRandom is automatically seeded by calling nextBytes
-            secureRandom.nextBytes(bytes);
-            saltValue = Base64.encode(bytes);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("SHA1PRNG algorithm could not be found.");
-        }
-        return saltValue;
+        // Create a random salt, returning 128-bit (16 bytes) of binary data
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] bytes = new byte[16];
+        // SecureRandom is automatically seeded by calling nextBytes
+        secureRandom.nextBytes(bytes);
+        return Base64.encode(bytes);
     }
 
     private void updateStringValuesToDatabase(DB dbConnection, String mongoQuery, Map<String, Object> params)
@@ -2945,6 +2939,11 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         return isValid;
     }
 
+    private boolean isCaseSensitiveUsername() {
+        String isUsernameCaseInsensitiveString = realmConfig.getUserStoreProperty(CASE_INSENSITIVE_USERNAME);
+        return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
+    }
+
     public static class RoleBreakdown {
         private String[] roles;
         private Integer[] tenantIds;
@@ -2987,15 +2986,6 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             this.sharedTenantIds = sharedTenantIds.clone();
         }
 
-    }
-
-    private boolean isCaseSensitiveUsername() {
-        String isUsernameCaseInsensitiveString = realmConfig.getUserStoreProperty(CASE_INSENSITIVE_USERNAME);
-        return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
-    }
-
-    public static void setDBDataSource(DataSource source) {
-        dataSourceLocal = source;
     }
 
 }

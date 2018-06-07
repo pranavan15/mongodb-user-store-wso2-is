@@ -20,8 +20,8 @@ package org.wso2.carbon.mongodb.util;
 
 import java.util.Map;
 
-import org.wso2.carbon.mongodb.userstoremanager.MongoDBRealmConstants;
-import org.wso2.carbon.mongodb.userstoremanager.caseinsensitive.MongoDBCaseInsensitiveConstants;
+import org.wso2.carbon.mongodb.user.store.mgt.MongoDBRealmConstants;
+import org.wso2.carbon.mongodb.user.store.mgt.caseinsensitive.MongoDBCaseInsensitiveConstants;
 
 /**
  * Map default MongoDB User store queries if they are not configured in user-mgt.xml

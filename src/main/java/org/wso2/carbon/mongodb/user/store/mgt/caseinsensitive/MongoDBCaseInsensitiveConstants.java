@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.mongodb.userstoremanager.caseinsensitive;
+package org.wso2.carbon.mongodb.user.store.mgt.caseinsensitive;
 
 /**
  * Case insensitive MongoDB queries

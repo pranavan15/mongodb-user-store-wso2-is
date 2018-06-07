@@ -21,6 +21,7 @@ package org.wso2.carbon.mongodb.query;
 /**
  * MongoDB prepared statement exception class
  */
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class MongoQueryException extends Exception {
 
     /**

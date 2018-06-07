@@ -16,12 +16,12 @@
  * under the License.
  */
 
-package org.wso2.carbon.mongodb.userstoremanager;
+package org.wso2.carbon.mongodb.user.store.mgt;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.wso2.carbon.mongodb.userstoremanager.caseinsensitive.MongoDBCaseInsensitiveConstants;
+import org.wso2.carbon.mongodb.user.store.mgt.caseinsensitive.MongoDBCaseInsensitiveConstants;
 import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 

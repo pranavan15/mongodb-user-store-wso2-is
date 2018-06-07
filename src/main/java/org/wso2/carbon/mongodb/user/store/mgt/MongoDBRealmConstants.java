@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.mongodb.userstoremanager;
+package org.wso2.carbon.mongodb.user.store.mgt;
 
 /**
  * MongoDBRealmConstants contain all the case sensitive user store queries

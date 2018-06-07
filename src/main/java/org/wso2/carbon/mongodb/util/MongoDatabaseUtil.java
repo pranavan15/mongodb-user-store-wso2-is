@@ -50,7 +50,7 @@ import org.json.JSONObject;
 import org.wso2.carbon.mongodb.query.MongoPreparedStatement;
 import org.wso2.carbon.mongodb.query.MongoPreparedStatementImpl;
 import org.wso2.carbon.mongodb.query.MongoQueryException;
-import org.wso2.carbon.mongodb.userstoremanager.MongoDBRealmConstants;
+import org.wso2.carbon.mongodb.user.store.mgt.MongoDBRealmConstants;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
