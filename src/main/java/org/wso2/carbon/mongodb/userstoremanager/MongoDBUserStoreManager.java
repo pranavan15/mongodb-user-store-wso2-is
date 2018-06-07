@@ -2693,14 +2693,8 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             }
             if (roles.length > 1) {
                 // add user to role.
-                mongoStmt2 = realmConfig.getUserStoreProperty(MongoDBRealmConstants.ADD_ROLE_TO_USER
-                        + "-" + "MONGO_QUERY");
-                if (mongoStmt2 == null) {
-                    mongoStmt2 = realmConfig.getUserStoreProperty(MongoDBRealmConstants.ADD_ROLE_TO_USER);
-                }
-                MongoPreparedStatement prepStmt = new MongoPreparedStatementImpl(dbConnection,
-                        MongoDBRealmConstants.GET_USER_ID_FROM_USERNAME_MONGO_QUERY);
-                prepStmt.setString("UM_USER_NAME", userName);
+                mongoStmt2 = realmConfig.getUserStoreProperty(MongoDBRealmConstants.ADD_ROLE_TO_USER);
+
                 int rolesID[] = getRolesIDS(dbConnection, roles);
                 String[] users = {userName};
                 int userID[] = getUserIDS(dbConnection, users);
@@ -2722,7 +2716,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                         String propName = claimManager.getAttributeName(claimURI);
                         String propValue = entry.getValue();
                         int userId = getUserId(userName);
-                        Map<String, Object> mapProperties = new HashMap<String, Object>();
+                        Map<String, Object> mapProperties = new HashMap<>();
                         mapProperties.put("UM_USER_ID", userId);
                         mapProperties.put("UM_PROFILE_ID", profileName);
                         if (propValue.length() > 0) {
