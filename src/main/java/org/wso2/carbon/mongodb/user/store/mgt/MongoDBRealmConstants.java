@@ -207,8 +207,7 @@ public class MongoDBRealmConstants {
     public static final String STORE_SALTED_PASSWORDS = "StoreSaltedPassword";
 
     // Properties
-    public static final String URL = "url";
-    public static final String USER_NAME = "userName";
-    public static final String PASSWORD = "password";
-    public static final String PORT = "port";
+    public static final String URL = "ConnectionURL";
+    public static final String USERNAME = "ConnectionName";
+    public static final String PASSWORD = "ConnectionPassword";
 }

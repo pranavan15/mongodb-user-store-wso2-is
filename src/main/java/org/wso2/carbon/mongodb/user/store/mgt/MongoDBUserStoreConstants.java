@@ -43,18 +43,17 @@ public class MongoDBUserStoreConstants {
             "Password is not matched with passwordJavaRegEx";
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     private static final String VALIDATION_INTERVAL = "validationInterval";
+    private static final String CONNECTION_URL_PATTERN = "mongodb://host[:port]/database[?options]";
 
     static {
 
         // Set mandatory properties
-        setMandatoryProperty(MongoDBRealmConstants.URL, "Connection URI", "mongodb://host[:port]/database[?options]",
+        setMandatoryProperty(MongoDBRealmConstants.URL, "Connection URL", CONNECTION_URL_PATTERN,
                 "URL of the user store database", false);
-        setMandatoryProperty(MongoDBRealmConstants.USER_NAME, "Connection Username", "",
+        setMandatoryProperty(MongoDBRealmConstants.USERNAME, "Connection Username", "",
                 "Username for the database", false);
         setMandatoryProperty(MongoDBRealmConstants.PASSWORD, "Connection Password", "",
                 "Password for the database", true);
-        setMandatoryProperty(MongoDBRealmConstants.PORT, "Connection port", "",
-                "Port of the MongoDB server", false);
 
         // Set optional properties
         setProperty(UserStoreConfigConstants.readGroups, "true", UserStoreConfigConstants.readLDAPGroupsDescription);
@@ -78,8 +77,8 @@ public class MongoDBUserStoreConstants {
         setProperty(USERNAME_JAVA_REG_EX_VIOLATION_ERROR_MSG, "Username pattern policy violated.",
                 USERNAME_JAVA_REG_EX_VIOLATION_ERROR_MSG_DESCRIPTION);
 
-        setProperty("RolenameJavaRegEx", "^[\\S]{5,30}$", "A regular expression to validate role names");
-        setProperty("RolenameJavaScriptRegEx", "^[\\S]{5,30}$", "The regular expression used by the font-end " +
+        setProperty("RoleNameJavaRegEx", "^[\\S]{5,30}$", "A regular expression to validate role names");
+        setProperty("RoleNameJavaScriptRegEx", "^[\\S]{5,30}$", "The regular expression used by the font-end " +
                 "components for role name validation");
         setProperty(VALIDATION_INTERVAL, "", "Used to avoid excess validation, only run validation at most " +
                 "at this frequency");

@@ -231,15 +231,8 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 db = MongoDatabaseUtil.getRealmDataSource(realmConfig);
                 properties.put(UserCoreConstants.DATA_SOURCE, db);
             }
-
-            if (log.isDebugEnabled()) {
-                log.debug("The MongoDBDataSource being used by MongoDBUserStoreManager :: "
-                        + db.hashCode());
-            }
         } catch (Exception e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Loading data source failed", e);
-            }
+            log.error("Loading data source failed", e);
         }
 
         dataSource = (DataSource) properties.get(UserCoreConstants.DATA_SOURCE);
@@ -394,7 +387,6 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     protected boolean isValueExisting(String mongoQuery, DB db, Map<String, Object> params) throws UserStoreException {
 
         boolean isExisting = false;
-        try {
             if (db == null) {
                 db = loadUserStoreSpecificDataSource();
             }
@@ -402,10 +394,6 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 isExisting = true;
             }
             return isExisting;
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            log.error("Using MongoQuery : " + mongoQuery);
-            throw new UserStoreException(e.getMessage(), e);
-        }
     }
 
     /**
@@ -2258,7 +2246,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             names = getStringValuesFromDatabase(mongoQuery, map, true, true);
         }
 
-        List<String> userList = new ArrayList<String>();
+        List<String> userList = new ArrayList<>();
 
         String domainName =
                 realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
@@ -2276,7 +2264,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         return names;
     }
 
-    private DB loadUserStoreSpecificDataSource() {
+    private DB loadUserStoreSpecificDataSource() throws UserStoreException {
         return MongoDatabaseUtil.createRealmDataSource(realmConfig);
     }
 
@@ -2845,12 +2833,11 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
      * @param userName to check
      * @return boolean status if user exists or not
      */
-    protected boolean checkExistingUserName(String userName) {
+    protected boolean checkExistingUserName(String userName) throws UserStoreException {
 
         boolean isExisting = false;
         String isUnique = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USERNAME_UNIQUE);
         if (this.db == null) {
-
             this.db = loadUserStoreSpecificDataSource();
         }
         DBCollection collection = this.db.getCollection("UM_USER");

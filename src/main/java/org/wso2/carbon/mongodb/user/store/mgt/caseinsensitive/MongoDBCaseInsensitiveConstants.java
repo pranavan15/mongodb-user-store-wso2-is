@@ -123,6 +123,9 @@ public class MongoDBCaseInsensitiveConstants {
     public static final String CASE_SENSITIVE_USERNAME = "CaseInsensitiveUsername";
     public static final String CASE_SENSITIVE_USERNAME_DESCRIPTION = "Whether the username is case sensitive or not";
 
+
+    // Private constructor to prevent other classes creating objects of this class
     private MongoDBCaseInsensitiveConstants() {
     }
+
 }

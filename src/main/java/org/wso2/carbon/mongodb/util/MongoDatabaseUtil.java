@@ -31,9 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
-import com.mongodb.WriteConcern;
+import com.mongodb.MongoClientURI;
 import com.mongodb.DBCursor;
 import com.mongodb.WriteResult;
 import com.mongodb.AggregationOutput;
@@ -59,7 +57,6 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 /**
  * MongoDB database operations
  */
-@SuppressWarnings("unused")
 public class MongoDatabaseUtil {
 
     private static final Log log = LogFactory.getLog(DatabaseUtil.class);
@@ -67,7 +64,7 @@ public class MongoDatabaseUtil {
     private static long connectionsClosed;
     private static ExecutorService executor = null;
 
-    private static DB dataSource = null;
+    private static DB db = null;
 
     /**
      * return the realm data source of user store
@@ -75,11 +72,11 @@ public class MongoDatabaseUtil {
      * @param realmConfiguration of user store
      * @return DB connection
      */
-    public static synchronized DB getRealmDataSource(RealmConfiguration realmConfiguration) {
-        if (dataSource == null) {
+    public static synchronized DB getRealmDataSource(RealmConfiguration realmConfiguration) throws UserStoreException {
+        if (db == null) {
             return createRealmDataSource(realmConfiguration);
         } else {
-            return dataSource;
+            return db;
         }
     }
 
@@ -87,35 +84,40 @@ public class MongoDatabaseUtil {
      * @param realmConfiguration of user store
      * @return DB connection
      */
-    @SuppressWarnings("deprecation")
-    public static DB createRealmDataSource(RealmConfiguration realmConfiguration) {
-        List<ServerAddress> seeds = new ArrayList<>();
-        char[] pass;
-        int port;
+    public static DB createRealmDataSource(RealmConfiguration realmConfiguration) throws UserStoreException {
+        String password;
+        String url;
+        String username;
+
+        if (realmConfiguration.getUserStoreProperty(MongoDBRealmConstants.URL) != null) {
+            url = realmConfiguration.getUserStoreProperty(MongoDBRealmConstants.URL);
+        } else {
+            throw new UserStoreException("Required property '" + MongoDBRealmConstants.URL +
+                    "' not found for the primary UserStoreManager in user_mgt.xml. Cannot start server!");
+        }
+
+        if (realmConfiguration.getUserStoreProperty(MongoDBRealmConstants.USERNAME) != null) {
+            username = realmConfiguration.getUserStoreProperty(MongoDBRealmConstants.USERNAME);
+        } else {
+            throw new UserStoreException("Required property '" + MongoDBRealmConstants.USERNAME +
+                    "' not found for the primary UserStoreManager in user_mgt.xml. Cannot start server!");
+        }
+
         if (realmConfiguration.getUserStoreProperty(MongoDBRealmConstants.PASSWORD) != null) {
-            pass = realmConfiguration.getUserStoreProperty(MongoDBRealmConstants.PASSWORD).toCharArray();
+            password = realmConfiguration.getUserStoreProperty(MongoDBRealmConstants.PASSWORD);
         } else {
-            pass = "admin".toCharArray();
+            throw new UserStoreException("Required property '" + MongoDBRealmConstants.PASSWORD +
+                    "' not found for the primary UserStoreManager in user_mgt.xml. Cannot start server!");
         }
-        List<MongoCredential> credentials = new ArrayList<>();
-        String userName;
-        if (realmConfiguration.getUserStoreProperty(MongoDBRealmConstants.USER_NAME) != null) {
-            userName = realmConfiguration.getUserStoreProperty(MongoDBRealmConstants.USER_NAME);
-        } else {
-            userName = "admin";
-        }
-        if (realmConfiguration.getUserStoreProperty(MongoDBRealmConstants.PORT) != null &&
-                realmConfiguration.getUserStoreProperty(MongoDBRealmConstants.PORT).length() > 0) {
-            port = Integer.parseInt(realmConfiguration.getUserStoreProperty(MongoDBRealmConstants.PORT));
-        } else {
-            port = 27017;
-        }
-        seeds.add(new ServerAddress(realmConfiguration.getUserStoreProperty(MongoDBRealmConstants.URL), port));
-        credentials.add(MongoCredential.createCredential(userName, "wso2_carbon_db", pass));
-        MongoClient mongoClient = new MongoClient(seeds, credentials);
-        mongoClient.setWriteConcern(WriteConcern.JOURNALED);
-        dataSource = mongoClient.getDB("wso2_carbon_db");
-        return dataSource;
+
+        String urlWithCredentials = url.replaceFirst("://", "://" + username + ":" + password + "@");
+
+        MongoClientURI clientURI = new MongoClientURI(urlWithCredentials);
+        MongoClient mongoClient = new MongoClient(clientURI);
+
+        //noinspection deprecation
+        db = mongoClient.getDB(clientURI.getDatabase());
+        return db;
     }
 
     /**
@@ -137,7 +139,7 @@ public class MongoDatabaseUtil {
         try {
             prepStmt = new MongoPreparedStatementImpl(dbConnection, stmt);
             for (String key : keys) {
-                if (!key.equals("collection") || !key.equals("projection") || !key.equals("$set")) {
+                if (!key.equals("collection") || !key.equals("projection")) {
                     for (Map.Entry<String, Object> entry : params.entrySet()) {
                         if (entry.getKey().equals(key)) {
                             if (entry.getValue() == null) {
@@ -211,7 +213,6 @@ public class MongoDatabaseUtil {
             }
             if (batchParamIndex != -1) {
                 for (int value : values) {
-
                     if (value > 0) {
                         prepStmt.setInt(listKey, value);
                         if (updateTrue(keys)) {
@@ -224,17 +225,14 @@ public class MongoDatabaseUtil {
                     }
                 }
                 if (updateTrue(keys)) {
-
                     prepStmt.updateBulk();
                 } else {
-
                     prepStmt.insertBulk();
                 }
             }
             localConnection = true;
             if (log.isDebugEnabled()) {
-                log.debug("Executed a batch update. Query is : " + stmt + ": and result is"
-                        + batchParamIndex);
+                log.debug("Executed a batch update. Query is : " + stmt + ": and result is" + batchParamIndex);
             }
         } catch (MongoQueryException ex) {
             log.error(ex.getMessage(), ex);
@@ -273,6 +271,7 @@ public class MongoDatabaseUtil {
                 prepStmt.setInt("UM_TENANT_ID", tenantID);
                 prepStmt.remove();
             }
+            localConnection = true;
         } catch (MongoQueryException ex) {
             log.error(ex.getMessage(), ex);
             log.error("Using json : " + stmt);
@@ -323,6 +322,7 @@ public class MongoDatabaseUtil {
                 }
                 prepStmt.remove();
             }
+            localConnection = true;
         } catch (MongoQueryException ex) {
             log.error(ex.getMessage(), ex);
             log.error("Using json : " + stmt);
