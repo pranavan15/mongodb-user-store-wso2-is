@@ -336,55 +336,6 @@ public class MongoDatabaseUtil {
     }
 
     /**
-     * Delete values from database
-     *
-     * @param dbConnection of user store
-     * @param params       values to filter from database
-     * @param stmt         query to execute in mongodb
-     * @throws UserStoreException if any error occurred
-     */
-    public static void deleteFromDatabase(DB dbConnection, String stmt, Map<String, Object> params)
-            throws UserStoreException {
-
-        MongoPreparedStatement prepStmt = null;
-        WriteResult result;
-        JSONObject jsonKeys = new JSONObject(stmt);
-        List<String> keys = getKeys(jsonKeys);
-        try {
-            prepStmt = new MongoPreparedStatementImpl(dbConnection, stmt);
-            Iterator<String> searchKeys = keys.iterator();
-            while (searchKeys.hasNext()) {
-                if (!searchKeys.next().equals("collection")) {
-                    if (params.get(searchKeys.next()) == null) {
-                        prepStmt.setString(searchKeys.next(), null);
-                    } else if (params.get(searchKeys.next()) instanceof String) {
-                        prepStmt.setString(searchKeys.next(), (String) params.get(searchKeys.next()));
-                    } else if (params.get(searchKeys.next()) instanceof Integer) {
-                        prepStmt.setInt(searchKeys.next(), (Integer) params.get(searchKeys.next()));
-                    } else if (params.get(searchKeys.next()) instanceof Date) {
-                        Date date = (Date) params.get(searchKeys.next());
-                        BSONTimestamp timestamp = new BSONTimestamp((int) date.getTime(), 1);
-                        prepStmt.setTimeStamp(searchKeys.next(), timestamp);
-                    }
-                }
-            }
-            result = prepStmt.remove();
-            if (log.isDebugEnabled()) {
-                log.debug("Executed query is " + stmt + " and number of deleted documents :: " + result.getN());
-            }
-        } catch (MongoQueryException ex) {
-            log.error("Error! " + ex.getMessage(), ex);
-            log.error("Using json " + stmt);
-            throw new UserStoreException("Error! " + ex.getMessage(), ex);
-        } catch (Exception e) {
-            log.error("Error! " + e.getMessage(), e);
-            throw new UserStoreException("Error! " + e.getMessage(), e);
-        } finally {
-            MongoDatabaseUtil.closeAllConnections(dbConnection, prepStmt);
-        }
-    }
-
-    /**
      * check whether the query is update query
      *
      * @param keys of json query
