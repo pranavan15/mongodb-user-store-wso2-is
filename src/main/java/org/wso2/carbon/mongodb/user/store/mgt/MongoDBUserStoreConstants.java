@@ -26,7 +26,7 @@ import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 
 /**
- * MongoDB default user store properties if they are not configured in user-mgt.xml
+ * MongoDB default user store properties
  */
 public class MongoDBUserStoreConstants {
 
@@ -47,9 +47,9 @@ public class MongoDBUserStoreConstants {
     static {
 
         // Set mandatory properties
-        setMandatoryProperty(MongoDBRealmConstants.URL, "Connection URL", "",
+        setMandatoryProperty(MongoDBRealmConstants.URL, "Connection URI", "mongodb://host[:port]/database[?options]",
                 "URL of the user store database", false);
-        setMandatoryProperty(MongoDBRealmConstants.USER_NAME, "Connection Name", "",
+        setMandatoryProperty(MongoDBRealmConstants.USER_NAME, "Connection Username", "",
                 "Username for the database", false);
         setMandatoryProperty(MongoDBRealmConstants.PASSWORD, "Connection Password", "",
                 "Password for the database", true);
