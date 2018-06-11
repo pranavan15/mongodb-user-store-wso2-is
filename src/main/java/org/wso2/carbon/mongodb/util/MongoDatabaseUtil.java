@@ -336,60 +336,6 @@ public class MongoDatabaseUtil {
     }
 
     /**
-     * update database with any modifier
-     *
-     * @param dbConnection of user store
-     * @param params       values to filter from database
-     * @param stmt         query to execute in mongodb
-     * @throws UserStoreException if any error occurred
-     */
-    public static void updateDatabase(DB dbConnection, String stmt, Map<String, Object> params)
-            throws UserStoreException {
-
-        MongoPreparedStatement prepStmt = null;
-        WriteResult result;
-        JSONObject jsonKeys = new JSONObject(stmt);
-        List<String> keys = getKeys(jsonKeys);
-        try {
-            prepStmt = new MongoPreparedStatementImpl(dbConnection, stmt);
-            for (String key : keys) {
-                if (!key.equals("collection") || !key.equals("projection") || !key.equals("$set")) {
-                    for (Map.Entry<String, Object> entry : params.entrySet()) {
-                        if (entry.getKey().equals(key)) {
-                            if (entry.getValue() == null) {
-                                prepStmt.setString(key, null);
-                            } else if (entry.getValue() instanceof String) {
-                                prepStmt.setString(key, (String) entry.getValue());
-                            } else if (entry.getValue() instanceof Integer) {
-                                prepStmt.setInt(key, (Integer) entry.getValue());
-                            } else if (entry.getValue() instanceof Date) {
-                                Date date = (Date) entry.getValue();
-                                BSONTimestamp timestamp = new BSONTimestamp((int) date.getTime(), 1);
-                                prepStmt.setTimeStamp(key, timestamp);
-                            }
-                        }
-                    }
-                }
-            }
-            int domainId = getIncrementedSequence(dbConnection, "UM_DOMAIN");
-            prepStmt.setInt("UM_DOMAIN_ID", domainId);
-            result = updateTrue(keys) ? prepStmt.update() : prepStmt.insert();
-            if (log.isDebugEnabled()) {
-                log.debug("Executed query is " + stmt + " and number of updated rows :: " + result.getN());
-            }
-        } catch (MongoQueryException ex) {
-            log.error("Error! " + ex.getMessage(), ex);
-            log.error("Using json " + stmt);
-            throw new UserStoreException("Error! " + ex.getMessage(), ex);
-        } catch (Exception e) {
-            log.error("Error! " + e.getMessage(), e);
-            throw new UserStoreException("Error! " + e.getMessage(), e);
-        } finally {
-            MongoDatabaseUtil.closeAllConnections(dbConnection, prepStmt);
-        }
-    }
-
-    /**
      * Delete values from database
      *
      * @param dbConnection of user store
