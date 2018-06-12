@@ -2924,7 +2924,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
     }
 
-    public class RoleBreakdown {
+    public static class RoleBreakdown {
         private String[] roles;
         private Integer[] tenantIds;
 

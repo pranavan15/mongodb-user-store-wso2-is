@@ -31,9 +31,9 @@ import org.wso2.carbon.user.core.UserStoreConfigConstants;
 public class MongoDBUserStoreConstants {
 
     // Properties for User Store Manager
-    public static final List<Property> MONGODB_UM_MANDATORY_PROPERTIES = new ArrayList<>();
-    public static final List<Property> MONGODB_UM_OPTIONAL_PROPERTIES = new ArrayList<>();
-    public static final List<Property> MONGODB_UM_ADVANCED_PROPERTIES = new ArrayList<>();
+    static final List<Property> MONGODB_UM_MANDATORY_PROPERTIES = new ArrayList<>();
+    static final List<Property> MONGODB_UM_OPTIONAL_PROPERTIES = new ArrayList<>();
+    static final List<Property> MONGODB_UM_ADVANCED_PROPERTIES = new ArrayList<>();
 
     private static final String USERNAME_JAVA_REG_EX_VIOLATION_ERROR_MSG = "UsernameJavaRegExViolationErrorMsg";
     private static final String USERNAME_JAVA_REG_EX_VIOLATION_ERROR_MSG_DESCRIPTION = "Error message when the " +
