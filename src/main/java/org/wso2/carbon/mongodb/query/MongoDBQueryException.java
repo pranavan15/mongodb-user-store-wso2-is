@@ -22,12 +22,12 @@ package org.wso2.carbon.mongodb.query;
  * MongoDB prepared statement exception class
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
-public class MongoQueryException extends Exception {
+public class MongoDBQueryException extends Exception {
 
     /**
      * Default Exception constructor
      */
-    public MongoQueryException() {
+    public MongoDBQueryException() {
     }
 
     /**
@@ -35,7 +35,7 @@ public class MongoQueryException extends Exception {
      *
      * @param message Exception message
      */
-    public MongoQueryException(String message) {
+    public MongoDBQueryException(String message) {
         super(message);
     }
 
@@ -44,7 +44,7 @@ public class MongoQueryException extends Exception {
      *
      * @param cause Throwable cause
      */
-    public MongoQueryException(Throwable cause) {
+    public MongoDBQueryException(Throwable cause) {
         super(cause);
     }
 
@@ -52,9 +52,9 @@ public class MongoQueryException extends Exception {
      * Exception constructor with throwable cause and message
      *
      * @param message Exception message
-     * @param cause  Throwable cause
+     * @param cause   Throwable cause
      */
-    public MongoQueryException(String message, Throwable cause) {
+    public MongoDBQueryException(String message, Throwable cause) {
         super(message, cause);
     }
 }

@@ -23,15 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.mongodb.DB;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.DBCursor;
-import com.mongodb.AggregationOutput;
-import com.mongodb.DBObject;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
-import com.mongodb.MongoException;
+import com.mongodb.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,18 +31,17 @@ import org.json.JSONObject;
 
 import org.wso2.carbon.mongodb.query.MongoPreparedStatement;
 import org.wso2.carbon.mongodb.query.MongoPreparedStatementImpl;
-import org.wso2.carbon.mongodb.query.MongoQueryException;
+import org.wso2.carbon.mongodb.query.MongoDBQueryException;
 import org.wso2.carbon.mongodb.user.store.mgt.MongoDBRealmConstants;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.user.core.util.DatabaseUtil;
 
 /**
  * MongoDB database operations
  */
 public class MongoDatabaseUtil {
 
-    private static final Log log = LogFactory.getLog(DatabaseUtil.class);
+    private static final Log log = LogFactory.getLog(MongoDatabaseUtil.class);
     private static long connectionsClosed;
 
     private static DB db = null;
@@ -104,6 +95,12 @@ public class MongoDatabaseUtil {
         MongoClientURI clientURI = new MongoClientURI(urlWithCredentials);
         MongoClient mongoClient = new MongoClient(clientURI);
 
+        //noinspection ConstantConditions
+        if (clientURI.getDatabase() == null) {
+            throw new UserStoreException("Property '" + MongoDBRealmConstants.URL +
+                    "' provided in user_mgt.xml does not contain the database name. Cannot start server!");
+        }
+
         //noinspection deprecation
         db = mongoClient.getDB(clientURI.getDatabase());
         return db;
@@ -128,7 +125,7 @@ public class MongoDatabaseUtil {
         try {
             prepStmt = new MongoPreparedStatementImpl(dbConnection, stmt);
             for (String key : keys) {
-                if (!key.equals("collection") || !key.equals("projection")) {
+                if (!(key.equals("collection") || key.equals("projection"))) {
                     for (Map.Entry<String, Object> entry : params.entrySet()) {
                         if (entry.getKey().equals(key)) {
                             if (entry.getValue() == null) {
@@ -150,7 +147,7 @@ public class MongoDatabaseUtil {
         } catch (NullPointerException ex) {
             log.error(ex.getMessage(), ex);
             throw new UserStoreException(ex.getMessage(), ex);
-        } catch (MongoQueryException ex) {
+        } catch (MongoDBQueryException ex) {
             log.error(ex.getMessage(), ex);
             log.error("Using JSON Query :" + stmt);
             throw new UserStoreException(ex.getMessage(), ex);
@@ -182,7 +179,7 @@ public class MongoDatabaseUtil {
             String listKey = "";
             while (searchKeys.hasNext()) {
                 String key = searchKeys.next();
-                if (!key.equals("collection") && !key.equals("projection") && !key.equals("$set")) {
+                if (!(key.equals("collection") || key.equals("projection") || key.equals("$set"))) {
                     for (Map.Entry<String, Object> entry : params.entrySet()) {
                         if (entry.getKey().equals(key)) {
                             if (entry.getValue() == null) {
@@ -214,16 +211,22 @@ public class MongoDatabaseUtil {
                     }
                 }
                 if (updateTrue(keys)) {
-                    prepStmt.updateBulk();
+                    BulkWriteResult updateResult = prepStmt.updateBulk();
+                    if (log.isDebugEnabled()) {
+                        log.debug("Bulk update results: " + updateResult);
+                    }
                 } else {
-                    prepStmt.insertBulk();
+                    BulkWriteResult insertResult = prepStmt.insertBulk();
+                    if (log.isDebugEnabled()) {
+                        log.debug("Bulk insert results: " + insertResult);
+                    }
                 }
             }
             localConnection = true;
             if (log.isDebugEnabled()) {
                 log.debug("Executed a batch update. Query is : " + stmt + ": and result is" + batchParamIndex);
             }
-        } catch (MongoQueryException ex) {
+        } catch (MongoDBQueryException ex) {
             log.error(ex.getMessage(), ex);
             log.error("Using json : " + stmt);
             throw new UserStoreException(ex.getMessage(), ex);
@@ -261,7 +264,7 @@ public class MongoDatabaseUtil {
                 prepStmt.remove();
             }
             localConnection = true;
-        } catch (MongoQueryException ex) {
+        } catch (MongoDBQueryException ex) {
             log.error(ex.getMessage(), ex);
             log.error("Using json : " + stmt);
             throw new UserStoreException(ex.getMessage(), ex);
@@ -312,7 +315,7 @@ public class MongoDatabaseUtil {
                 prepStmt.remove();
             }
             localConnection = true;
-        } catch (MongoQueryException ex) {
+        } catch (MongoDBQueryException ex) {
             log.error(ex.getMessage(), ex);
             log.error("Using json : " + stmt);
             throw new UserStoreException(ex.getMessage(), ex);
@@ -511,7 +514,7 @@ public class MongoDatabaseUtil {
             prepStmt = new MongoPreparedStatementImpl(dbConnection, mongoQuery);
             while (searchKeys.hasNext()) {
                 String key = searchKeys.next();
-                if (!key.equals("collection") || !key.equals("projection")) {
+                if (!(key.equals("collection") || key.equals("projection"))) {
                     for (Map.Entry<String, Object> entry : params.entrySet()) {
                         if (entry.getKey().equals(key)) {
                             if (params.get(key) == null) {
@@ -559,7 +562,7 @@ public class MongoDatabaseUtil {
             return values;
         } catch (NullPointerException ex) {
             throw new UserStoreException(ex.getMessage(), ex);
-        } catch (MongoQueryException ex) {
+        } catch (MongoDBQueryException ex) {
             log.error("Using Mongo Query :" + mongoQuery);
             throw new UserStoreException(ex.getMessage(), ex);
         } catch (org.wso2.carbon.user.api.UserStoreException ex) {
@@ -606,8 +609,8 @@ public class MongoDatabaseUtil {
      * @param params       to filter from database
      * @return String[] distinct string values
      */
-    public static String[] getDistinctStringValuesFromDatabase(DB dbConnection, String mongoQuery, Map<String,
-            Object> params) throws UserStoreException {
+    public static String[] getDistinctStringValuesFromDatabase(DB dbConnection, String mongoQuery,
+                                                               Map<String, Object> params) throws UserStoreException {
 
         MongoPreparedStatement prepStmt = null;
         String[] values = new String[0];
@@ -619,7 +622,7 @@ public class MongoDatabaseUtil {
             prepStmt = new MongoPreparedStatementImpl(dbConnection, mongoQuery);
             while (searchKeys.hasNext()) {
                 String key = searchKeys.next();
-                if (!key.equals("collection") || !key.equals("projection")) {
+                if (!(key.equals("collection") || key.equals("projection"))) {
                     for (Map.Entry<String, Object> entry : params.entrySet()) {
                         if (entry.getKey().equals(key)) {
                             if (params.get(key) == null) {
@@ -648,7 +651,7 @@ public class MongoDatabaseUtil {
         } catch (NullPointerException ex) {
             log.error(ex.getMessage(), ex);
             throw new UserStoreException(ex.getMessage(), ex);
-        } catch (MongoQueryException ex) {
+        } catch (MongoDBQueryException ex) {
             log.error(ex.getMessage(), ex);
             log.error("Using JSON Query :" + mongoQuery);
             throw new UserStoreException(ex.getMessage(), ex);

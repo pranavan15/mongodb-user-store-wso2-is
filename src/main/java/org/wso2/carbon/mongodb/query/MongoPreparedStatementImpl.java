@@ -29,21 +29,17 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.BulkWriteOperation;
-import com.mongodb.DBRef;
 import com.mongodb.WriteResult;
 import com.mongodb.DBCursor;
 import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoException;
-import com.mongodb.DBEncoder;
-import com.mongodb.WriteConcern;
 import com.mongodb.BulkWriteRequestBuilder;
 import com.mongodb.BulkWriteResult;
 import com.mongodb.BulkUpdateRequestBuilder;
 
-import org.bson.types.BSONTimestamp;
-import org.bson.types.Binary;
-import org.bson.types.Symbol;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,6 +49,8 @@ import org.wso2.carbon.user.api.UserStoreException;
  * MongoDB Prepared Statement interface implementation class
  */
 public class MongoPreparedStatementImpl implements MongoPreparedStatement {
+
+    private static final Log log = LogFactory.getLog(MongoPreparedStatementImpl.class);
 
     private DB db = null;
     private DBCollection collection = null;
@@ -190,20 +188,8 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
         parameterValue.put(key, parameter);
     }
 
-    public void setDouble(String key, double parameter) {
-        parameterValue.put(key, parameter);
-    }
-
     public void setString(String key, String parameter) {
         parameterValue.put(key, parameter);
-    }
-
-    public void setTimeStamp(String key, BSONTimestamp timeStamp) {
-        parameterValue.put(key, timeStamp);
-    }
-
-    public void setObject(String key, Object object) {
-        parameterValue.put(key, object);
     }
 
     public void setDate(String key, Date date) {
@@ -214,38 +200,14 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
         parameterValue.put(key, parameter);
     }
 
-    public void setDBPointer(String key, DBRef dbRef) {
-        parameterValue.put(key, dbRef);
-    }
-
-    public void setSymbol(String key, Symbol symbol) {
-        parameterValue.put(key, symbol);
-    }
-
-    public void setRegularExpression(String key, String parameter) {
-        parameterValue.put(key, parameter);
-    }
-
-    public void setLong(String key, long parameter) {
-        parameterValue.put(key, parameter);
-    }
-
-    public void setBinary(String key, Binary stream) {
-        parameterValue.put(key, stream);
-    }
-
-    public void setArray(String key, ArrayList<Object> parameters) {
-        parameterValue.put(key, parameters);
-    }
-
-    public WriteResult insert() throws MongoQueryException {
+    public WriteResult insert() throws MongoDBQueryException {
         if (!matchArguments(this.queryJson)) {
-            throw new MongoQueryException("Parameter count not matched with query parameters");
+            throw new MongoDBQueryException("Parameter count not matched with query parameters");
         } else {
             if (convertToDBObject(defaultQuery)) {
                 return this.collection.insert(this.query);
             } else {
-                throw new MongoQueryException("Query format is invalid no collection found");
+                throw new MongoDBQueryException("Query format is invalid no collection found");
             }
         }
     }
@@ -254,9 +216,9 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
         multipleLookUp = status;
     }
 
-    public DBCursor find() throws MongoQueryException {
+    public DBCursor find() throws MongoDBQueryException {
         if (!matchArguments(this.queryJson)) {
-            throw new MongoQueryException("Parameter count not matched with query parameters");
+            throw new MongoDBQueryException("Parameter count not matched with query parameters");
         } else {
             if (convertToDBObject(defaultQuery)) {
                 if (this.projection == null && this.query == null) {
@@ -267,27 +229,28 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
                     return this.collection.find(this.query, this.projection);
                 }
             } else {
-                throw new MongoQueryException("Query format is invalid no collection found");
+                throw new MongoDBQueryException("Query format is invalid no collection found");
             }
         }
     }
 
-    public List distinct() throws MongoQueryException {
+    public List distinct() throws MongoDBQueryException {
         if (!matchArguments(this.queryJson)) {
-            throw new MongoQueryException("Parameter count not matched with query parameters");
+            throw new MongoDBQueryException("Parameter count not matched with query parameters");
         } else {
             if (convertToDBObject(defaultQuery)) {
                 return this.collection.distinct(this.distinctKey, this.query);
             } else {
-                throw new MongoQueryException("Query format is invalid no collection found");
+                throw new MongoDBQueryException("Query format is invalid no collection found");
             }
         }
     }
 
+    @SuppressWarnings("deprecation")
     public AggregationOutput aggregate() throws UserStoreException {
         JSONObject defaultObject = new JSONObject(defaultQuery);
-        getAggregationObjects(defaultObject);
         try {
+            getAggregationObjects(defaultObject);
             List<DBObject> pipeline = new ArrayList<>();
             // Add lookup attribute to pipeline
             if (mapLookUp != null) {
@@ -375,152 +338,71 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             return this.collection.aggregate(pipeline);
 
         } catch (MongoException e) {
-            throw new UserStoreException(e.getMessage());
+            if (log.isDebugEnabled()) {
+                log.debug("MongoException: " + e.getMessage());
+            }
+            throw new UserStoreException(e.getMessage(), e);
+        } catch (JSONException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("JSONException: " + e.getMessage());
+            }
+            throw new UserStoreException(e.getMessage(), e);
         }
     }
 
-    public WriteResult update() throws MongoQueryException {
+    public WriteResult update() throws MongoDBQueryException {
         if (!matchArguments(this.queryJson)) {
-            throw new MongoQueryException("Parameter count not matched with query parameters");
+            throw new MongoDBQueryException("Parameter count not matched with query parameters");
         } else {
             if (convertToDBObject(defaultQuery)) {
                 return this.collection.update(this.query, new BasicDBObject("$set", this.projection));
             } else {
-                throw new MongoQueryException("Query format is invalid no collection found");
+                throw new MongoDBQueryException("Query format is invalid no collection found");
             }
         }
     }
 
-    public WriteResult update(boolean upsert, boolean multi) throws MongoQueryException {
+    public WriteResult remove() throws MongoDBQueryException {
         if (!matchArguments(this.queryJson)) {
-            throw new MongoQueryException("Parameter count not matched with query parameters");
-        } else {
-            if (convertToDBObject(defaultQuery)) {
-                return this.collection.update(this.query, new BasicDBObject("$set", this.projection), upsert, multi);
-            } else {
-                throw new MongoQueryException("Query format is invalid no collection found");
-            }
-        }
-    }
-
-    public WriteResult update(boolean upsert, boolean multi, WriteConcern aWriteConcern) throws MongoQueryException {
-        if (!matchArguments(this.queryJson)) {
-            throw new MongoQueryException("Parameter count not matched with query parameters");
-        } else {
-            if (convertToDBObject(defaultQuery)) {
-                return this.collection.update(this.query, new BasicDBObject("$set", this.projection), upsert, multi,
-                        aWriteConcern);
-            } else {
-                throw new MongoQueryException("Query format is invalid no collection found");
-            }
-        }
-    }
-
-    public WriteResult update(boolean upsert, boolean multi, WriteConcern aWriteConcern, DBEncoder encoder)
-            throws MongoQueryException {
-        if (!matchArguments(this.queryJson)) {
-            throw new MongoQueryException("Parameter count not matched with query parameters");
-        } else {
-            if (convertToDBObject(defaultQuery)) {
-                return this.collection.update(this.query, new BasicDBObject("$set", this.projection), upsert, multi,
-                        aWriteConcern, encoder);
-            } else {
-                throw new MongoQueryException("Query format is invalid no collection found");
-            }
-        }
-    }
-
-    public WriteResult update(boolean upsert, boolean multi, WriteConcern aWriteConcern,
-                              boolean byPassDocumentValidation, DBEncoder encoder) throws MongoQueryException {
-        if (!matchArguments(this.queryJson)) {
-            throw new MongoQueryException("Parameter count not matched with query parameters");
-        } else {
-            if (convertToDBObject(defaultQuery)) {
-                return this.collection.update(this.query, new BasicDBObject("$set", this.projection), upsert, multi,
-                        aWriteConcern, byPassDocumentValidation, encoder);
-            } else {
-                throw new MongoQueryException("Query format is invalid no collection found");
-            }
-        }
-    }
-
-    public WriteResult updateMulti() throws MongoQueryException {
-        if (!matchArguments(this.queryJson)) {
-            throw new MongoQueryException("Parameter count not matched with query parameters");
-        } else {
-            if (convertToDBObject(defaultQuery)) {
-                return this.collection.updateMulti(this.query, new BasicDBObject("$set", this.projection));
-            } else {
-                throw new MongoQueryException("Query format is invalid no collection found");
-            }
-        }
-    }
-
-    public WriteResult remove() throws MongoQueryException {
-        if (!matchArguments(this.queryJson)) {
-            throw new MongoQueryException("Parameter count not matched with query parameters");
+            throw new MongoDBQueryException("Parameter count not matched with query parameters");
         } else {
             if (convertToDBObject(defaultQuery)) {
                 return this.collection.remove(this.query);
             } else {
-                throw new MongoQueryException("Query format is invalid no collection found");
+                throw new MongoDBQueryException("Query format is invalid no collection found");
             }
         }
     }
 
-    public WriteResult remove(WriteConcern concern) throws MongoQueryException {
-        if (!matchArguments(this.queryJson)) {
-            throw new MongoQueryException("Parameter count not matched with query parameters");
-        } else {
-            if (convertToDBObject(defaultQuery)) {
-                return this.collection.remove(this.query, concern);
-            } else {
-                throw new MongoQueryException("Query format is invalid no collection found");
-            }
-        }
-    }
-
-    public WriteResult remove(WriteConcern concern, DBEncoder encoder) throws MongoQueryException {
-        if (!matchArguments(this.queryJson)) {
-            throw new MongoQueryException("Parameter count not matched with query parameters");
-        } else {
-            if (convertToDBObject(defaultQuery)) {
-                return this.collection.remove(this.query, concern, encoder);
-            } else {
-                throw new MongoQueryException("Query format is invalid no collection found");
-            }
-        }
-    }
-
-    public BulkWriteResult insertBulk() throws MongoQueryException {
+    public BulkWriteResult insertBulk() throws MongoDBQueryException {
         try {
             return this.bulkWrite.execute();
         } catch (Exception e) {
-            throw new MongoQueryException("Query Exception:" + e.getLocalizedMessage());
+            throw new MongoDBQueryException("Query Exception: " + e.getLocalizedMessage());
         }
     }
 
-    public BulkWriteResult updateBulk() throws MongoQueryException {
+    public BulkWriteResult updateBulk() throws MongoDBQueryException {
         try {
             return this.bulkWrite.execute();
         } catch (Exception e) {
-            throw new MongoQueryException("Query Exception:" + e.getLocalizedMessage());
+            throw new MongoDBQueryException("Query Exception: " + e.getLocalizedMessage());
         }
     }
 
-    public void addBatch() throws MongoQueryException {
+    public void addBatch() throws MongoDBQueryException {
         if (convertToDBObject(defaultQuery)) {
             if (bulkWrite == null) {
                 bulkWrite = this.collection.initializeUnorderedBulkOperation();
             }
             bulkWrite.insert(this.query);
         } else {
-            throw new MongoQueryException("Query format is invalid no collection found");
+            throw new MongoDBQueryException("Query format is invalid no collection found");
         }
 
     }
 
-    public void updateBatch() throws MongoQueryException {
+    public void updateBatch() throws MongoDBQueryException {
         if (convertToDBObject(defaultQuery)) {
             if (bulkWrite == null) {
                 bulkWrite = this.collection.initializeUnorderedBulkOperation();
@@ -529,7 +411,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             BulkUpdateRequestBuilder updateReq = bulkWriteRequestBuilder.upsert();
             updateReq.replaceOne(this.projection);
         } else {
-            throw new MongoQueryException("Query format is invalid no collection found");
+            throw new MongoDBQueryException("Query format is invalid no collection found");
         }
     }
 
@@ -641,7 +523,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
     }
 
     /**
-     * get the value setted updated object
+     * get the updated object
      *
      * @param object to update
      */
@@ -668,44 +550,38 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
      *
      * @param stmt JSONObject
      */
-    private void getAggregationObjects(JSONObject stmt) {
+    private void getAggregationObjects(JSONObject stmt) throws JSONException {
 
         Iterator<String> keys = stmt.keys();
         while (keys.hasNext()) {
-
             String key = keys.next();
-            JSONObject value = null;
-            try {
-                if (!key.equals("collection")) {
-                    value = stmt.getJSONObject(key);
-                }
-            } catch (JSONException e) {
-                throw new JSONException(e.getMessage());
-            }
             if (key.equals("collection")) {
                 this.collection = db.getCollection(stmt.get(key).toString());
-            } else if (key.equals("$lookup") || key.contains("$lookup_sub")) {
-                if (isMultipleLookUp()) {
-                    mapLookUp = toMap(value);
-                } else {
-                    mapLookUp = toMap(value);
-                    multiMapLookup.add(mapLookUp);
-                }
-            } else if (key.equals("$project")) {
-                mapProject = toMap(value);
-            } else if (key.equals("$sort")) {
-                mapSort = toMap(value);
-            } else if (key.equals("$group")) {
-                mapGroup = toMap(value);
-            } else if (key.equals("$unwind") || key.equals("$unwind_sub")) {
-                if (isMultipleLookUp()) {
-                    mapUnwind = toMap(value);
-                } else {
-                    mapUnwind = toMap(value);
-                    multiMapUnwind.add(mapUnwind);
-                }
             } else {
-                setMatchObject(value);
+                JSONObject value = stmt.getJSONObject(key);
+                if (key.equals("$lookup") || key.contains("$lookup_sub")) {
+                    if (isMultipleLookUp()) {
+                        mapLookUp = toMap(value);
+                    } else {
+                        mapLookUp = toMap(value);
+                        multiMapLookup.add(mapLookUp);
+                    }
+                } else if (key.equals("$project")) {
+                    mapProject = toMap(value);
+                } else if (key.equals("$sort")) {
+                    mapSort = toMap(value);
+                } else if (key.equals("$group")) {
+                    mapGroup = toMap(value);
+                } else if (key.equals("$unwind") || key.equals("$unwind_sub")) {
+                    if (isMultipleLookUp()) {
+                        mapUnwind = toMap(value);
+                    } else {
+                        mapUnwind = toMap(value);
+                        multiMapUnwind.add(mapUnwind);
+                    }
+                } else {
+                    setMatchObject(value);
+                }
             }
         }
     }

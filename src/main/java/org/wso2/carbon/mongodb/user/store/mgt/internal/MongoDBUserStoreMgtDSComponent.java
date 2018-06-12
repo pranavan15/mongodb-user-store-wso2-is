@@ -42,7 +42,7 @@ public class MongoDBUserStoreMgtDSComponent {
     private static final Log log = LogFactory.getLog(MongoDBUserStoreMgtDSComponent.class);
     private static RealmService realmService;
 
-    protected void activate(ComponentContext ctxt) {
+    protected void activate(ComponentContext context) {
 
         try {
             // We assume this component gets activated by super tenant
@@ -51,9 +51,9 @@ public class MongoDBUserStoreMgtDSComponent {
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
             UserStoreManager mongoUserStoreManager = new MongoDBUserStoreManager();
-            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), mongoUserStoreManager, null);
+            context.getBundleContext().registerService(UserStoreManager.class.getName(), mongoUserStoreManager, null);
 
-            UserStoreManagerRegistry.init(ctxt.getBundleContext());
+            UserStoreManagerRegistry.init(context.getBundleContext());
 
             MongoDBUserStoreManager.setDBDataSource(
                     DatabaseUtil.getRealmDataSource(realmService.getBootstrapRealmConfiguration())

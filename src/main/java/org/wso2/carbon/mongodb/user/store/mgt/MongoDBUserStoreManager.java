@@ -78,7 +78,7 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
-import org.wso2.carbon.mongodb.query.MongoQueryException;
+import org.wso2.carbon.mongodb.query.MongoDBQueryException;
 
 /**
  * MongoDBUserStoreManager class for create MongoDBUserStore
@@ -208,18 +208,25 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
      * @param profileManager Profile Configuration Manager instance
      * @param realm          User Realm instance
      * @param tenantId       currently logged in tenantId
-     * @param skipInitData   boolean status to check whether to skip intial data or not
+     * @param skipInitData   boolean status to check whether to skip initial data or not
      */
     public MongoDBUserStoreManager(RealmConfiguration realmConfig, Map<String, Object> properties,
                                    ClaimManager claimManager, ProfileConfigurationManager profileManager,
                                    UserRealm realm, Integer tenantId, boolean skipInitData) throws UserStoreException {
 
         this(realmConfig, tenantId);
+
         if (log.isDebugEnabled()) {
             log.debug("Started " + System.currentTimeMillis());
         }
+
         this.claimManager = claimManager;
         this.userRealm = realm;
+
+        if (log.isDebugEnabled()) {
+            log.debug("value of profileManager: " + profileManager);
+            log.debug("value of skipInitData: " + skipInitData);
+        }
 
         try {
             db = loadUserStoreSpecificDataSource();
@@ -245,11 +252,10 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
 
         properties.put(UserCoreConstants.DATA_SOURCE, dataSource);
 
-
-        realmConfig.setUserStoreProperties(MongoDBRealmUtil.getMongo(realmConfig
-                .getUserStoreProperties()));
+        realmConfig.setUserStoreProperties(MongoDBRealmUtil.getMongo(realmConfig.getUserStoreProperties()));
 
         this.persistDomain();
+
         doInitialSetup();
         if (!skipInitData && realmConfig.isPrimary()) {
             addInitialAdminData(Boolean.parseBoolean(realmConfig.getAddAdmin()), !isInitSetupDone());
@@ -286,7 +292,9 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         String[] propertyNamesSorted = propertyNames.clone();
         Arrays.sort(propertyNamesSorted);
         Map<String, String> map = new HashMap<>();
-        DB db = loadUserStoreSpecificDataSource();
+        if (db == null) {
+            db = loadUserStoreSpecificDataSource();
+        }
         try {
             String mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.GET_PROPS_FOR_PROFILE);
             prepStmt = new MongoPreparedStatementImpl(db, mongoQuery);
@@ -296,6 +304,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 prepStmt.setInt("users.UM_TENANT_ID", tenantId);
                 prepStmt.setInt("UM_TENANT_ID", tenantId);
             }
+            //noinspection deprecation
             AggregationOutput result = prepStmt.aggregate();
             Iterable<DBObject> ite = result.results();
             for (DBObject object : ite) {
@@ -340,6 +349,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
      * @param roleName role name to create context
      * @return RoleContext created for given role
      */
+    @SuppressWarnings("RedundantThrows")
     protected RoleContext createRoleContext(String roleName) throws UserStoreException {
         JDBCRoleContext searchCtx = new JDBCRoleContext();
         String[] roleNameParts = roleName.split(UserCoreConstants.TENANT_DOMAIN_COMBINER);
@@ -365,7 +375,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
      * @param context of role created
      * @return boolean status whether the role exists or not
      */
-    protected boolean isExistingMongoDBRole(RoleContext context) throws UserStoreException {
+    private boolean isExistingMongoDBRole(RoleContext context) throws UserStoreException {
         boolean isExisting;
         String roleName = context.getRoleName();
         Map<String, Object> map = new HashMap<>();
@@ -377,23 +387,23 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
 
             map.put("UM_TENANT_ID", ((JDBCRoleContext) context).getTenantId());
-            isExisting = isValueExisting(mongoQuery, null, map);
+            isExisting = isValueExisting(mongoQuery, map);
         } else {
-            isExisting = isValueExisting(mongoQuery, null, map);
+            isExisting = isValueExisting(mongoQuery, map);
         }
         return isExisting;
     }
 
-    protected boolean isValueExisting(String mongoQuery, DB db, Map<String, Object> params) throws UserStoreException {
+    private boolean isValueExisting(String mongoQuery, Map<String, Object> params) throws UserStoreException {
 
         boolean isExisting = false;
-            if (db == null) {
-                db = loadUserStoreSpecificDataSource();
-            }
-            if (MongoDatabaseUtil.getIntegerValueFromDatabase(db, mongoQuery, params) > -1) {
-                isExisting = true;
-            }
-            return isExisting;
+        if (db == null) {
+            db = loadUserStoreSpecificDataSource();
+        }
+        if (MongoDatabaseUtil.getIntegerValueFromDatabase(db, mongoQuery, params) > -1) {
+            isExisting = true;
+        }
+        return isExisting;
     }
 
     /**
@@ -421,16 +431,16 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         if ("true".equals(isUnique)
                 && !CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userName)) {
             String uniquenessMongo = realmConfig.getUserStoreProperty(MongoDBRealmConstants.USER_NAME_UNIQUE);
-            isExisting = isValueExisting(uniquenessMongo, null, map);
+            isExisting = isValueExisting(uniquenessMongo, map);
             if (log.isDebugEnabled()) {
                 log.debug("The username should be unique across tenants.");
             }
         } else {
             if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 map.put("UM_TENANT_ID", tenantId);
-                isExisting = isValueExisting(mongoQuery, null, map);
+                isExisting = isValueExisting(mongoQuery, map);
             } else {
-                isExisting = isValueExisting(mongoQuery, null, map);
+                isExisting = isValueExisting(mongoQuery, map);
             }
         }
         return isExisting;
@@ -453,7 +463,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
 
         MongoPreparedStatement prepStmt = null;
         String[] users = new String[0];
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         try {
             db = loadUserStoreSpecificDataSource();
             String mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.GET_USERS_FOR_PROP);
@@ -640,7 +650,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             mongoQuery = realmConfig.getUserStoreProperty(
                     MongoDBCaseInsensitiveConstants.UPDATE_USER_PASSWORD_CASE_INSENSITIVE);
         }
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         String saltValue = null;
         if (mongoQuery == null) {
             throw new UserStoreException("The mongo statement for delete user claim value is null");
@@ -701,7 +711,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             List<String> keys = MongoDatabaseUtil.getKeys(jsonKeys);
             prepStmt = new MongoPreparedStatementImpl(dbConnection, mongoQuery);
             for (String key : keys) {
-                if (!key.equals("collection") && !key.equals("projection") && !key.equals("$set")) {
+                if (!(key.equals("collection") || key.equals("projection") || key.equals("$set"))) {
                     for (Map.Entry<String, Object> entry : params.entrySet()) {
                         if (entry.getKey().equals(key)) {
                             if (entry.getValue() == null) {
@@ -740,7 +750,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             }
             throw new UserStoreException(msg, e);
         } finally {
-            if (localConnection) {
+            if (localConnection && prepStmt != null) {
                 prepStmt.close();
             }
         }
@@ -787,14 +797,14 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 }
             } catch (com.mongodb.MongoQueryException ex) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Exception occur while querying :" + ex.getMessage());
+                    log.debug("com.mongodb.MongoQueryException :" + ex.getMessage());
                 }
-                throw new UserStoreException("Error occurred cannot add user store property :" + ex.getMessage());
+                throw new UserStoreException("Cannot add user store property :" + ex.getMessage());
             } catch (Exception ex) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Exception occur while querying :" + ex.getMessage());
+                    log.debug("UserStoreException :" + ex.getMessage());
                 }
-                throw new UserStoreException("Error occurred cannot add user store property :" + ex.getMessage());
+                throw new UserStoreException("Cannot add user store property :" + ex.getMessage());
             }
         }
     }
@@ -838,7 +848,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             }
             throw new UserStoreException(msg, ex);
         } finally {
-            if (localConnection) {
+            if (localConnection && prepStmt != null) {
                 prepStmt.close();
             }
         }
@@ -861,7 +871,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 String mongoQuery;
                 String mongoQuery2;
                 String mongoQuery3;
-                Map<String, Object> map = new HashMap<String, Object>();
+                Map<String, Object> map = new HashMap<>();
                 mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.ON_DELETE_USER_REMOVE_USER_ROLE);
                 mongoQuery2 = realmConfig.getUserStoreProperty(MongoDBRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE);
                 mongoQuery3 = realmConfig.getUserStoreProperty(MongoDBRealmConstants.DELETE_USER);
@@ -907,7 +917,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             String property = getClaimAtrribute(claimURI, userName, null);
             int userId = getUserId(userName);
             String value = getProperty(dbConnection, userId);
-            Map<String, Object> map = new HashMap<String, Object>();
+            Map<String, Object> map = new HashMap<>();
             map.put("UM_USER_ID", userId);
             map.put("UM_PROFILE_ID", profileName);
             if (value == null) {
@@ -941,7 +951,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
      * @return property of given user
      * @throws UserStoreException if error occurred
      */
-    protected String getProperty(DB dbConnection, int userId) throws UserStoreException {
+    private String getProperty(DB dbConnection, int userId) throws UserStoreException {
         MongoPreparedStatement prepStmt = null;
         try {
             String mongoQuery;
@@ -1093,7 +1103,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     private void deleteProperty(DB dbConnection, String userName, String property, String profileName)
-            throws UserStoreException, MongoQueryException {
+            throws UserStoreException, MongoDBQueryException {
 
         String mongoQuery;
         String query;
@@ -1215,7 +1225,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
 
             String[] roles = {roleName};
             int roleIds[] = getRolesIDS(dbConnection, roles);
-            Map<String, Object> mapRole = new HashMap<String, Object>();
+            Map<String, Object> mapRole = new HashMap<>();
             mapRole.put("UM_USER_ID", userIds);
             mapRole.put("UM_ROLE_ID", roleIds[0]);
             if (isShared) {
@@ -1224,7 +1234,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 if (newUsers.length > 0) {
                     MongoDatabaseUtil.updateUserRoleMappingInBatchMode(dbConnection, mongoQuery2, mapRole);
                 }
-                if (deletedUsers.length > 0) {
+                if (deletedUsers != null && deletedUsers.length > 0) {
                     MongoDatabaseUtil.deleteUserMappingInBatchMode(dbConnection, mongoQuery, mapRole);
                 }
             } else {
@@ -1276,7 +1286,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
 
                 String[] sharedRoles = breakdown.getSharedRoles();
                 Integer[] sharedTenantIds = breakdown.getSharedTenantIds();
-                Map<String, Object> mapRole = new HashMap<String, Object>();
+                Map<String, Object> mapRole = new HashMap<>();
                 if (roles.length > 0) {
                     if (isCaseSensitiveUsername()) {
                         mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.REMOVE_ROLE_FROM_USER);
@@ -1444,7 +1454,6 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
      * @throws UserStoreException if any error occurred
      */
     protected String[] doGetExternalRoleListOfUser(String userName, String filter) throws UserStoreException {
-
         if (log.isDebugEnabled()) {
             log.debug("Getting roles of user: " + userName + " with filter: " + filter);
         }
@@ -1472,21 +1481,21 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
 
                 userId = Integer.parseInt(cursor.next().get("UM_ID").toString());
             }
-            List<String> roles = new ArrayList<String>();
+            List<String> roles = new ArrayList<>();
             String[] names;
             if (mongoQuery == null) {
                 throw new UserStoreException("The mongo statement for retrieving user roles is null");
             }
-            Map<String, Object> map = new HashMap<String, Object>();
+            Map<String, Object> map = new HashMap<>();
             map.put("users.UM_ID", userId);
             if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
 
                 map.put("userRole.UM_TENANT_ID", tenantId);
                 map.put("users.UM_TENANT_ID", tenantId);
                 map.put("UM_TENANT_ID", tenantId);
-                names = getStringValuesFromDatabase(mongoQuery, map, true, true);
+                names = getStringValuesFromDatabase(mongoQuery, map);
             } else {
-                names = getStringValuesFromDatabase(mongoQuery, map, true, true);
+                names = getStringValuesFromDatabase(mongoQuery, map);
             }
             if (log.isDebugEnabled()) {
                 if (names.length != 0) {
@@ -1499,7 +1508,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             }
             Collections.addAll(roles, names);
             return roles.toArray(new String[roles.size()]);
-        } catch (MongoQueryException e) {
+        } catch (MongoDBQueryException e) {
 
             String msg = "Error occurred while retrieving user roles.";
             if (log.isDebugEnabled()) {
@@ -1509,8 +1518,9 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         }
     }
 
-    private String[] getStringValuesFromDatabase(String mongoQuery, Map<String, Object> params, boolean findStatus,
-                                                 boolean multipleLookUps) throws UserStoreException {
+    private String[] getStringValuesFromDatabase(String mongoQuery, Map<String, Object> params)
+            throws UserStoreException {
+
         if (log.isDebugEnabled()) {
             log.debug("Executing Query: " + mongoQuery);
             for (Map.Entry<String, Object> entry : params.entrySet()) {
@@ -1523,8 +1533,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         DB dbConnection = null;
         try {
             dbConnection = loadUserStoreSpecificDataSource();
-            values = MongoDatabaseUtil.getStringValuesFromDatabase(dbConnection, mongoQuery, params, findStatus,
-                    multipleLookUps);
+            values = MongoDatabaseUtil.getStringValuesFromDatabase(dbConnection, mongoQuery, params, true, true);
         } catch (Exception e) {
             String msg = "Error occurred while retrieving string values.";
             if (log.isDebugEnabled()) {
@@ -1583,12 +1592,12 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
 
             mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.GET_SHARED_ROLES_FOR_USER);
 
-            return getRoleNamesWithDomain(mongoQuery, userName, tenantId, true);
+            return getRoleNamesWithDomain(mongoQuery, userName, tenantId);
         }
         return new String[0];
     }
 
-    private String[] getRoleNamesWithDomain(String mongoQuery, String userName, int tenantId, boolean appendDn)
+    private String[] getRoleNamesWithDomain(String mongoQuery, String userName, int tenantId)
             throws UserStoreException {
         DB dbConnection = null;
         MongoPreparedStatement prepStmt;
@@ -1596,16 +1605,14 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         try {
             dbConnection = loadUserStoreSpecificDataSource();
             prepStmt = new MongoPreparedStatementImpl(dbConnection, mongoQuery);
-            //byte count = 0;
             prepStmt.setString("UM_USER_NAME", userName);
             prepStmt.setInt("UM_TENANT_ID", tenantId);
             DBCursor cursor = prepStmt.find();
             while (cursor.hasNext()) {
                 String name = cursor.next().get("UM_ROLE_NAME").toString();
                 int tenant = Integer.parseInt(cursor.next().get("UM_TENANT_ID").toString());
-                if (appendDn) {
-                    UserCoreUtil.addTenantDomainToEntry(name, String.valueOf(tenant));
-                }
+                //noinspection unused
+                String tenantEntry = UserCoreUtil.addTenantDomainToEntry(name, String.valueOf(tenant));
                 roles.add(name);
             }
         } catch (Exception e) {
@@ -1717,7 +1724,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
 
     private void doAddSharedRole(String roleName, String[] userList) throws UserStoreException {
         DB dbConnection = null;
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         try {
 
             dbConnection = loadUserStoreSpecificDataSource();
@@ -1744,7 +1751,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 String[] roles = {roleName};
                 int roleID[] = getRolesIDS(dbConnection, roles);
                 int[] userID = getUserIDS(dbConnection, userList);
-                Map<String, Object> mapRole = new HashMap<String, Object>();
+                Map<String, Object> mapRole = new HashMap<>();
                 mapRole.put("UM_USER_ID", roleID[0]);
                 mapRole.put("UM_ROLE_ID", userID);
                 if (mongoQuery2.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
@@ -1769,7 +1776,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         }
     }
 
-    private int[] getUserIDS(DB dbConnection, String[] userList) throws MongoQueryException {
+    private int[] getUserIDS(DB dbConnection, String[] userList) throws MongoDBQueryException {
 
         String query;
         if (isCaseSensitiveUsername()) {
@@ -1808,7 +1815,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
      */
     protected void doDeleteRole(String roleName) throws UserStoreException {
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         String mongoQuery1 = realmConfig
                 .getUserStoreProperty(MongoDBRealmConstants.ON_DELETE_ROLE_REMOVE_USER_ROLE);
         if (mongoQuery1 == null) {
@@ -1858,7 +1865,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     protected void doUpdateRoleName(String roleName, String newRoleName) throws UserStoreException {
 
         JDBCRoleContext ctx = (JDBCRoleContext) createRoleContext(roleName);
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         if (isExistingRole(newRoleName)) {
             throw new UserStoreException("Role name: " + newRoleName
                     + " in the system. Please pick another role name.");
@@ -1921,7 +1928,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 filter = "%";
             }
 
-            List<String> lst = new LinkedList<String>();
+            List<String> lst = new LinkedList<>();
             dbConnection = loadUserStoreSpecificDataSource();
             if (dbConnection == null) {
 
@@ -1953,7 +1960,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                     roles = lst.toArray(new String[lst.size()]);
                 }
 
-            } catch (MongoQueryException e) {
+            } catch (MongoDBQueryException e) {
 
                 String errorMessage =
                         "Error while fetching roles from JDBC user store according to filter : " + filter +
@@ -1991,16 +1998,17 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         DB dbConnection = null;
         String mongoQuery;
         MongoPreparedStatement prepStmt;
+        //noinspection deprecation
         AggregationOutput cursor;
         if (maxItemLimit == 0) {
             return new String[0];
         }
 
         int givenMax;
-
         try {
-            givenMax = Integer.parseInt(realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST));
+            givenMax = Integer.parseInt(
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST)
+            );
         } catch (Exception e) {
             givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
         }
@@ -2018,7 +2026,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 filter = "%";
             }
 
-            List<String> lst = new LinkedList<String>();
+            List<String> lst = new LinkedList<>();
 
             dbConnection = loadUserStoreSpecificDataSource();
 
@@ -2088,6 +2096,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
      * @return String[] of internal roles
      * @throws UserStoreException if any exception occurred
      */
+    @SuppressWarnings("RedundantThrows")
     protected String[] doGetDisplayNamesForInternalRole(String[] userNames) throws UserStoreException {
         return userNames;
     }
@@ -2110,7 +2119,6 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 }
             }
         }
-
         return false;
     }
 
@@ -2149,7 +2157,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 filter = "%";
             }
 
-            List<String> lst = new LinkedList<String>();
+            List<String> lst = new LinkedList<>();
             dbConnection = loadUserStoreSpecificDataSource();
             if (dbConnection == null) {
                 throw new UserStoreException("null connection");
@@ -2160,7 +2168,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             prepStmt.setString("UM_ROLE_NAME", filter);
             try {
                 cursor = prepStmt.find();
-            } catch (MongoQueryException e) {
+            } catch (MongoDBQueryException e) {
 
 
                 String errorMessage =
@@ -2223,7 +2231,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         String roleName = ctx.getRoleName();
         String[] names = null;
         String mongoQuery;
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         if (!ctx.isShared()) {
 
             mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.GET_USERS_IN_ROLE);
@@ -2236,14 +2244,14 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 map.put("UM_TENANT_ID", tenantId);
                 map.put("role.UM_TENANT_ID", tenantId);
                 map.put("userRole.UM_TENANT_ID", tenantId);
-                names = getStringValuesFromDatabase(mongoQuery, map, true, true);
+                names = getStringValuesFromDatabase(mongoQuery, map);
             } else {
-                names = getStringValuesFromDatabase(mongoQuery, map, true, true);
+                names = getStringValuesFromDatabase(mongoQuery, map);
             }
         } else if (ctx.isShared()) {
             map.put("UM_ROLE_NAME", roleName);
             mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.GET_USERS_IN_SHARED_ROLE);
-            names = getStringValuesFromDatabase(mongoQuery, map, true, true);
+            names = getStringValuesFromDatabase(mongoQuery, map);
         }
 
         List<String> userList = new ArrayList<>();
@@ -2298,7 +2306,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             if (cursor.hasNext()) {
 
                 int userId = Integer.parseInt(cursor.next().get("UM_ID").toString());
-                Map<String, Object> map = new HashMap<String, Object>();
+                Map<String, Object> map = new HashMap<>();
                 map.put("UM_USER_ID", userId);
                 if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                     map.put("UM_TENANT_ID", tenantId);
@@ -2323,7 +2331,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 }
             }
             return names;
-        } catch (MongoQueryException e) {
+        } catch (MongoDBQueryException e) {
 
             String errorMessage = "Error occurred while getting profile names from username : ";
             if (log.isDebugEnabled()) {
@@ -2345,7 +2353,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             throw new UserStoreException("The mongo statement for retrieving profile names is null");
         }
         String[] names;
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
             map.put("UM_TENANT_ID", tenantId);
             names = getDistinctStringValues(mongoQuery, map);
@@ -2362,6 +2370,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
      * @return boolean status
      * @throws UserStoreException if any exception occurred
      */
+    @SuppressWarnings("RedundantThrows")
     public boolean isReadOnly() throws UserStoreException {
         return "true".equalsIgnoreCase(
                 realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_READ_ONLY));
@@ -2376,7 +2385,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
      */
     public int getUserId(String username) throws UserStoreException {
         String mongoQuery;
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("UM_USER_NAME", username);
         if (isCaseSensitiveUsername()) {
             mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.GET_USER_ID_FROM_USERNAME);
@@ -2420,7 +2429,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         if (this.tenantId != MultitenantConstants.SUPER_TENANT_ID) {
             throw new UserStoreException("Not allowed to perform this operation");
         }
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("UM_USER_NAME", username);
         String mongoQuery;
         if (isCaseSensitiveUsername()) {
@@ -2432,16 +2441,13 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         if (mongoQuery == null) {
             throw new UserStoreException("The mongo statement for retrieving tenant ID is null");
         }
-        int id = -1;
+        int id;
         DB dbConnection = null;
         try {
             dbConnection = loadUserStoreSpecificDataSource();
             id = MongoDatabaseUtil.getIntegerValueFromDatabase(dbConnection, mongoQuery, map);
         } catch (Exception e) {
-            String errorMessage = "Error occurred while getting tenant ID from username : " + username;
-            if (log.isDebugEnabled()) {
-                log.debug(errorMessage, e);
-            }
+            String errorMessage = "Error occurred while getting tenant ID from username: " + username;
             throw new UserStoreException(errorMessage, e);
         } finally {
             MongoDatabaseUtil.closeConnection(dbConnection);
@@ -2455,6 +2461,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
      * @return int tenantId
      * @throws UserStoreException if any exception occurred
      */
+    @SuppressWarnings("RedundantThrows")
     public int getTenantId() throws UserStoreException {
         return this.tenantId;
     }
@@ -2518,6 +2525,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         }
     }
 
+    @SuppressWarnings("RedundantThrows")
     public boolean isValidRememberMeToken(String userName, String token)
             throws org.wso2.carbon.user.api.UserStoreException {
         try {
@@ -2562,6 +2570,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
      * @return Map of properties
      * @throws UserStoreException if any exception occurred
      */
+    @SuppressWarnings("RedundantThrows")
     public Map<String, String> getProperties(Tenant tenant) throws UserStoreException {
         return this.realmConfig.getUserStoreProperties();
     }
@@ -2572,7 +2581,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
      * @return Status of bulk import support
      */
     public boolean isBulkImportSupported() {
-        return new Boolean(realmConfig.getUserStoreProperty("IsBulkImportSupported"));
+        return Boolean.valueOf(realmConfig.getUserStoreProperty("IsBulkImportSupported"));
     }
 
     /**
@@ -2584,24 +2593,13 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         return this.realmConfig;
     }
 
-    protected void persistUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
-                               String profileName, boolean requirePasswordChange) throws UserStoreException {
+    private void persistUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
+                             String profileName, boolean requirePasswordChange) throws UserStoreException {
 
-        if (!checkUserNameValid(userName)) {
-            throw new UserStoreException("User name not valid. User name must be a non null string with " +
-                    "following format, " + realmConfig.getUserStoreProperty(UserCoreConstants.
-                    RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX));
-        }
 
-        if (!checkUserPasswordValid(credential)) {
-            throw new UserStoreException("Credential not valid. Credential must be a non null string with following " +
-                    "format, " + realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
-        }
-
-        boolean isExisting = checkExistingUserName(userName);
-        if (isExisting) {
-            throw new UserStoreException("User name : " + userName +
-                    " exists in the system. Please pick another user name");
+        if (checkExistingUserName(userName)) {
+            throw new UserStoreException("Username '" + userName +
+                    "' already exists in the system. Please pick another username.");
         }
 
         DB dbConnection = null;
@@ -2719,7 +2717,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         }
     }
 
-    private int[] getRolesIDS(DB dbConnection, String[] roles) throws MongoQueryException {
+    private int[] getRolesIDS(DB dbConnection, String[] roles) throws MongoDBQueryException {
 
         String query = MongoDBRealmConstants.GET_IS_ROLE_EXISTING_MONGO_QUERY;
         int rolesID[] = new int[roles.length];
@@ -2749,8 +2747,8 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
      * update user values
      *
      * @param connection to  mongodb
-     * @param map        user property
      * @param query      to update user value to mongodb
+     * @param map        user property
      * @throws UserStoreException if any exception occurred
      */
     @SuppressWarnings("WeakerAccess")
@@ -2760,7 +2758,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         try {
             MongoPreparedStatement prepStmt = new MongoPreparedStatementImpl(connection, query);
             for (String key : keys) {
-                if (!key.equals("collection") || !key.equals("projection") || !key.equals("$set")) {
+                if (!(key.equals("collection") || key.equals("projection") || key.equals("$set"))) {
                     for (Map.Entry<String, Object> entry : map.entrySet()) {
                         if (entry.getKey().equals(key)) {
                             if (entry.getValue() == null) {
@@ -2783,18 +2781,16 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             } else {
                 prepStmt.insert();
             }
-        } catch (MongoQueryException e) {
-            log.error("Error! " + e.getMessage(), e);
-            log.error("Using json " + query);
-            throw new UserStoreException("Error! " + e.getMessage(), e);
+        } catch (MongoDBQueryException e) {
+            if (log.isDebugEnabled()) {
+                log.error("MongoDBQueryException - Using mongo query: " + query);
+            }
+            throw new UserStoreException("Error: " + e.getMessage(), e);
         } catch (Exception ex) {
-            log.error("Error! " + ex.getMessage(), ex);
-            log.error("Using json " + query);
-            throw new UserStoreException("Error! " + ex.getMessage(), ex);
+            throw new UserStoreException("Error: " + ex.getMessage(), ex);
         } finally {
             MongoDatabaseUtil.closeConnection(connection);
         }
-
     }
 
     /**
@@ -2804,7 +2800,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
      * @param map          User property
      * @throws UserStoreException If any exception occurred
      */
-    public void addProperty(DB dbConnection, Map<String, Object> map) throws UserStoreException {
+    private void addProperty(DB dbConnection, Map<String, Object> map) throws UserStoreException {
         try {
             String mongoStmt = realmConfig.getUserStoreProperty(MongoDBRealmConstants.ADD_USER_PROPERTY);
             if (mongoStmt == null) {
@@ -2833,9 +2829,9 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
      * @param userName to check
      * @return boolean status if user exists or not
      */
-    protected boolean checkExistingUserName(String userName) throws UserStoreException {
+    private boolean checkExistingUserName(String userName) throws UserStoreException {
 
-        boolean isExisting = false;
+        boolean isExisting;
         String isUnique = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USERNAME_UNIQUE);
         if (this.db == null) {
             this.db = loadUserStoreSpecificDataSource();
@@ -2849,7 +2845,6 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 log.debug("The username should be unique across tenants.");
             }
         } else {
-
             BasicDBObject userSearch;
             if (isCaseSensitiveUsername()) {
                 userSearch = new BasicDBObject("UM_USER_NAME", userName).append("UM_TENANT_ID", this.tenantId);
@@ -2858,9 +2853,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                         append("$options", "i")).append("UM_TENANT_ID", this.tenantId);
             }
             DBCursor cursor = collection.find(userSearch);
-            if (cursor != null) {
-                isExisting = cursor.hasNext();
-            }
+            isExisting = cursor.hasNext();
         }
         return isExisting;
     }
@@ -2873,8 +2866,8 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
      * @return boolean Status of token exists or not
      * @throws UserStoreException,SQLException if any exception occurred
      */
-    public boolean isExistingRememberMeToken(String username, String token)
-            throws org.wso2.carbon.user.api.UserStoreException, SQLException {
+    private boolean isExistingRememberMeToken(String username, String token) throws SQLException,
+            org.wso2.carbon.user.api.UserStoreException {
 
         boolean isValid = false;
         PreparedStatement prepStmt = null;
@@ -2931,46 +2924,45 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
     }
 
-    public static class RoleBreakdown {
+    public class RoleBreakdown {
         private String[] roles;
         private Integer[] tenantIds;
 
         private String[] sharedRoles;
         private Integer[] sharedTenantIds;
 
-        public RoleBreakdown() {
+        String[] getRoles() {
+            return roles;
         }
 
-        public String[] getRoles() {
-            return roles.clone();
+        void setRoles(String[] roles) {
+            this.roles = roles;
         }
 
-        public void setRoles(String[] roles) {
-            this.roles = roles.clone();
+        @SuppressWarnings("unused")
+        Integer[] getTenantIds() {
+            return tenantIds;
         }
 
-        public Integer[] getTenantIds() {
-            return tenantIds.clone();
+        void setTenantIds(Integer[] tenantIds) {
+            this.tenantIds = tenantIds;
         }
 
-        public void setTenantIds(Integer[] tenantIds) {
-            this.tenantIds = tenantIds.clone();
+
+        String[] getSharedRoles() {
+            return sharedRoles;
         }
 
-        public String[] getSharedRoles() {
-            return sharedRoles.clone();
+        void setSharedRoles(String[] sharedRoles) {
+            this.sharedRoles = sharedRoles;
         }
 
-        public void setSharedRoles(String[] sharedRoles) {
-            this.sharedRoles = sharedRoles.clone();
+        Integer[] getSharedTenantIds() {
+            return sharedTenantIds;
         }
 
-        public Integer[] getSharedTenantIds() {
-            return sharedTenantIds.clone();
-        }
-
-        public void setSharedTenantIds(Integer[] sharedTenantIds) {
-            this.sharedTenantIds = sharedTenantIds.clone();
+        void setSharedTenantIds(Integer[] sharedTenantIds) {
+            this.sharedTenantIds = sharedTenantIds;
         }
 
     }
