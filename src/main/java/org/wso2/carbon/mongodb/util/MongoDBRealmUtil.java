@@ -28,7 +28,13 @@ import org.wso2.carbon.mongodb.user.store.mgt.caseinsensitive.MongoDBCaseInsensi
  */
 public class MongoDBRealmUtil {
 
-    public static Map<String, String> getMongo(Map<String, String> properties) {
+    /**
+     * Get MongoDB user store properties (Sets default properties if already not available)
+     *
+     * @param properties map with user store properties
+     * @return map with default properties added
+     */
+    public static Map<String, String> getMongoProperties(Map<String, String> properties) {
 
         // Realm properties
         if (!properties.containsKey(MongoDBRealmConstants.SELECT_USER)) {

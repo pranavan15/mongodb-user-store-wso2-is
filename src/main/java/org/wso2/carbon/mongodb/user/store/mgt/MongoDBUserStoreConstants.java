@@ -264,11 +264,13 @@ public class MongoDBUserStoreConstants {
 
     }
 
+    // Private method to set optional properties
     private static void setProperty(String name, String value, String description) {
         Property property = new Property(name, value, description, null);
         MONGODB_UM_OPTIONAL_PROPERTIES.add(property);
     }
 
+    // Private method to set mandatory properties
     private static void setMandatoryProperty(String name, String displayName, String value, String description,
                                              boolean encrypt) {
         String propertyDescription = displayName + "#" + description;
@@ -279,6 +281,7 @@ public class MongoDBUserStoreConstants {
         MONGODB_UM_MANDATORY_PROPERTIES.add(property);
     }
 
+    // Private method to set advanced properties
     private static void setAdvancedProperty(String name, String value) {
         Property property = new Property(name, value, "", null);
         MONGODB_UM_ADVANCED_PROPERTIES.add(property);

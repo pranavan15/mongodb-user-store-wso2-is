@@ -25,13 +25,13 @@ package org.wso2.carbon.mongodb.query;
 public class MongoDBQueryException extends Exception {
 
     /**
-     * Default Exception constructor
+     * Default Exception constructor.
      */
     public MongoDBQueryException() {
     }
 
     /**
-     * Exception constructor with exception message
+     * Exception constructor with exception message.
      *
      * @param message Exception message
      */
@@ -40,7 +40,7 @@ public class MongoDBQueryException extends Exception {
     }
 
     /**
-     * Exception constructor with throwable cause
+     * Exception constructor with throwable cause.
      *
      * @param cause Throwable cause
      */
@@ -49,7 +49,7 @@ public class MongoDBQueryException extends Exception {
     }
 
     /**
-     * Exception constructor with throwable cause and message
+     * Exception constructor with throwable cause and message.
      *
      * @param message Exception message
      * @param cause   Throwable cause

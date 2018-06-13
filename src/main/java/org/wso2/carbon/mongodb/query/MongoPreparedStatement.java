@@ -29,12 +29,12 @@ import com.mongodb.BulkWriteResult;
 import org.wso2.carbon.user.api.UserStoreException;
 
 /**
- * MongoDB Prepared Statement Interface
+ * MongoDB prepared statement interface
  */
 public interface MongoPreparedStatement {
 
     /**
-     * set int parameter value to respective query parameter
+     * Set int parameter value to respective query parameter.
      *
      * @param key       of json query
      * @param parameter value to set to query parameter
@@ -42,7 +42,7 @@ public interface MongoPreparedStatement {
     void setInt(String key, int parameter);
 
     /**
-     * set String parameter value to respective query parameter
+     * Set String parameter value to respective query parameter.
      *
      * @param key       of json query
      * @param parameter value to set to query parameter
@@ -50,7 +50,7 @@ public interface MongoPreparedStatement {
     void setString(String key, String parameter);
 
     /**
-     * set date parameter value to respective query parameter
+     * Set date parameter value to respective query parameter.
      *
      * @param key  of json query
      * @param date value to set to query parameter
@@ -58,7 +58,7 @@ public interface MongoPreparedStatement {
     void setDate(String key, Date date);
 
     /**
-     * set boolean parameter value to respective query parameter
+     * Set boolean parameter value to respective query parameter.
      *
      * @param key       of json query
      * @param parameter value to set to query parameter
@@ -71,7 +71,7 @@ public interface MongoPreparedStatement {
     void close();
 
     /**
-     * insert document to mongodb
+     * Insert document to mongodb.
      *
      * @return WriteResult instance
      * @throws MongoDBQueryException if any exception occurred
@@ -79,7 +79,7 @@ public interface MongoPreparedStatement {
     WriteResult insert() throws MongoDBQueryException;
 
     /**
-     * search documents from mongodb
+     * Search documents from mongodb.
      *
      * @return DBCursor instance
      * @throws MongoDBQueryException if any exception occurred
@@ -87,7 +87,7 @@ public interface MongoPreparedStatement {
     DBCursor find() throws MongoDBQueryException;
 
     /**
-     * search documents through aggregation pipeline from mongodb
+     * Search documents through aggregation pipeline from mongodb.
      *
      * @return AggregationOutput instance
      * @throws UserStoreException if any exception occurred
@@ -96,7 +96,7 @@ public interface MongoPreparedStatement {
     AggregationOutput aggregate() throws UserStoreException;
 
     /**
-     * update document in mongodb
+     * Update document in mongodb.
      *
      * @return WriteResult instance
      * @throws MongoDBQueryException if any exception occurred
@@ -104,7 +104,7 @@ public interface MongoPreparedStatement {
     WriteResult update() throws MongoDBQueryException;
 
     /**
-     * remove document in mongodb
+     * Remove document in mongodb.
      *
      * @return WriteResult instance
      * @throws MongoDBQueryException if any exception occurred
@@ -112,7 +112,7 @@ public interface MongoPreparedStatement {
     WriteResult remove() throws MongoDBQueryException;
 
     /**
-     * insert bulk documents to mongodb
+     * Insert bulk documents to mongodb.
      *
      * @return BulkWriteResult instance
      * @throws MongoDBQueryException if any exception occurred
@@ -120,7 +120,7 @@ public interface MongoPreparedStatement {
     BulkWriteResult insertBulk() throws MongoDBQueryException;
 
     /**
-     * update bulk documents to mongodb
+     * Update bulk documents to mongodb.
      *
      * @return BulkWriteResult instance
      * @throws MongoDBQueryException if any exception occurred
@@ -128,21 +128,21 @@ public interface MongoPreparedStatement {
     BulkWriteResult updateBulk() throws MongoDBQueryException;
 
     /**
-     * add document to batch to bulk insert
+     * Add document to batch to bulk insert.
      *
      * @throws MongoDBQueryException if any exception occurred
      */
     void addBatch() throws MongoDBQueryException;
 
     /**
-     * add document to batch to bulk update
+     * Add document to batch to bulk update.
      *
      * @throws MongoDBQueryException if any exception occurred
      */
     void updateBatch() throws MongoDBQueryException;
 
     /**
-     * get distinct set of values from mongodb
+     * Get distinct set of values from mongodb.
      *
      * @return List of distinct
      * @throws MongoDBQueryException if any exception occurred
@@ -150,7 +150,7 @@ public interface MongoPreparedStatement {
     List distinct() throws MongoDBQueryException;
 
     /**
-     * multiple lookup status
+     * Multiple lookup status.
      *
      * @param stat boolean status
      */

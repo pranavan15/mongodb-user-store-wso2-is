@@ -23,7 +23,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.mongodb.*;
+import com.mongodb.DB;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import com.mongodb.DBCursor;
+import com.mongodb.BulkWriteResult;
+import com.mongodb.AggregationOutput;
+import com.mongodb.DBObject;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+import com.mongodb.MongoException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,7 +56,7 @@ public class MongoDatabaseUtil {
     private static DB db = null;
 
     /**
-     * return the realm data source of user store
+     * Return the realm data source of user store.
      *
      * @param realmConfiguration of user store
      * @return DB connection
@@ -97,6 +106,9 @@ public class MongoDatabaseUtil {
 
         //noinspection ConstantConditions
         if (clientURI.getDatabase() == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("URL provided: " + clientURI);
+            }
             throw new UserStoreException("Property '" + MongoDBRealmConstants.URL +
                     "' provided in user_mgt.xml does not contain the database name. Cannot start server!");
         }
@@ -107,7 +119,7 @@ public class MongoDatabaseUtil {
     }
 
     /**
-     * retrieve integer values from database
+     * Retrieve integer values from database.
      *
      * @param dbConnection of user store
      * @param params       values to filter from database
@@ -157,7 +169,7 @@ public class MongoDatabaseUtil {
     }
 
     /**
-     * update user role in batch mode to database
+     * Update user role in batch mode to database.
      *
      * @param dbConnection of user store
      * @param params       values to filter from database
@@ -240,7 +252,7 @@ public class MongoDatabaseUtil {
 
 
     /**
-     * Delete user role in batch mode
+     * Delete user role in batch mode.
      *
      * @param dbConnection of user store
      * @param params       values to filter from database
@@ -277,7 +289,7 @@ public class MongoDatabaseUtil {
     }
 
     /**
-     * delete user in batch mode from database
+     * Delete user in batch mode from database.
      *
      * @param dbConnection of user store
      * @param params       values to filter from database
@@ -328,7 +340,7 @@ public class MongoDatabaseUtil {
     }
 
     /**
-     * check whether the query is update query
+     * Check whether the query is update query.
      *
      * @param keys of json query
      * @return boolean status
@@ -346,7 +358,7 @@ public class MongoDatabaseUtil {
     }
 
     /**
-     * retrieve keys from json query
+     * Retrieve keys from json query.
      *
      * @param stmt of JSONObject
      */
@@ -378,7 +390,7 @@ public class MongoDatabaseUtil {
     }
 
     /**
-     * close the connection to database
+     * Close the connection to database.
      *
      * @param dbConnection to close
      */
@@ -415,7 +427,7 @@ public class MongoDatabaseUtil {
     }
 
     /**
-     * close the connection to database
+     * Close the connection to database.
      *
      * @param dbConnection to close
      */
@@ -431,7 +443,7 @@ public class MongoDatabaseUtil {
     }
 
     /**
-     * update exact user role with params from database
+     * Update exact user role with params from database.
      *
      * @param dbConnection    of user store
      * @param sharedRoles     to update
@@ -487,7 +499,7 @@ public class MongoDatabaseUtil {
     }
 
     /**
-     * delete values from database
+     * Delete values from database.
      *
      * @param dbConnection   of user store
      * @param params         values to filter from database
@@ -574,7 +586,7 @@ public class MongoDatabaseUtil {
     }
 
     /**
-     * get auto increment sequence
+     * Get auto increment sequence.
      *
      * @param dbConnection of user store
      * @param collection   to auto increment
@@ -602,7 +614,7 @@ public class MongoDatabaseUtil {
     }
 
     /**
-     * get distinct string value of key in document
+     * Get distinct string value of key in document.
      *
      * @param dbConnection of user store
      * @param mongoQuery   to execute

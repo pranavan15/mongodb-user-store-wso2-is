@@ -20,7 +20,9 @@ package org.wso2.carbon.mongodb.user.store.mgt.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.osgi.service.component.ComponentContext;
+
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.mongodb.user.store.mgt.MongoDBUserStoreManager;
 import org.wso2.carbon.user.api.UserStoreManager;
@@ -42,6 +44,7 @@ public class MongoDBUserStoreMgtDSComponent {
     private static final Log log = LogFactory.getLog(MongoDBUserStoreMgtDSComponent.class);
     private static RealmService realmService;
 
+    // To activate the MongoDB OSGI component
     protected void activate(ComponentContext context) {
 
         try {
@@ -64,6 +67,7 @@ public class MongoDBUserStoreMgtDSComponent {
         }
     }
 
+    // Bind method
     protected void setRealmService(RealmService rlmService) {
         if (log.isDebugEnabled()) {
             log.debug("Set the realmService");
@@ -71,6 +75,7 @@ public class MongoDBUserStoreMgtDSComponent {
         MongoDBUserStoreMgtDSComponent.realmService = rlmService;
     }
 
+    // Unbind method
     protected void unsetRealmService(RealmService rlmService) {
         if (log.isDebugEnabled()) {
             log.debug("Unset the realmService");

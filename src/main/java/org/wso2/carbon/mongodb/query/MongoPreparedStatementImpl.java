@@ -254,9 +254,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             List<DBObject> pipeline = new ArrayList<>();
             // Add lookup attribute to pipeline
             if (mapLookUp != null) {
-
                 if (isMultipleLookUp()) {
-
                     DBObject lookup = new BasicDBObject("$lookup", new BasicDBObject(mapLookUp));
                     pipeline.add(lookup);
                 } else {
@@ -310,7 +308,6 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             }
             // Add match attribute to pipeline
             if (mapMatch != null) {
-
                 DBObject match;
                 if (this.isCaseSensitive) {
                     match = new BasicDBObject("$match", new BasicDBObject(mapMatch));
